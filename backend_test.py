@@ -388,6 +388,9 @@ class GovEnforceAPITester:
             self.test_self_assign_case(case_id, "officer")
             self.test_update_case_status(case_id, "supervisor")
         
+        # Test case-type specific fields
+        self.test_case_type_specific_fields()
+        
         # Test public report (no auth)
         self.test_public_report()
         
@@ -398,6 +401,125 @@ class GovEnforceAPITester:
         self.test_notifications("manager")
         
         return True
+
+    def test_case_type_specific_fields(self):
+        """Test all case types with their specific fields"""
+        print("\n🔍 Testing Case-Type Specific Fields")
+        print("-" * 40)
+        
+        # Fly Tipping with specific fields
+        fly_tipping_fields = {
+            "fly_tipping": {
+                "waste_description": "Large pile of household waste including furniture",
+                "estimated_quantity": "2 cubic metres",
+                "waste_type": "household",
+                "offender_witnessed": True,
+                "offender_description": "Male, approximately 30 years old, driving white van",
+                "vehicle_details": {
+                    "registration_number": "AB12 CDE",
+                    "make": "Ford",
+                    "model": "Transit",
+                    "colour": "White"
+                },
+                "identifying_evidence": "Found envelope with address"
+            }
+        }
+        
+        success, case_id, _ = self.test_create_case_with_type_specific_fields(
+            "fly_tipping", fly_tipping_fields, "manager"
+        )
+        if success and case_id:
+            self.test_get_case_detail(case_id, "manager")
+        
+        # Abandoned Vehicle with specific fields
+        abandoned_vehicle_fields = {
+            "abandoned_vehicle": {
+                "registration_number": "XY99 ZAB",
+                "make": "Vauxhall",
+                "model": "Corsa",
+                "colour": "Blue",
+                "tax_status": "untaxed",
+                "mot_status": "expired",
+                "condition": "damaged",
+                "estimated_time_at_location": "3 weeks",
+                "causing_obstruction": True
+            }
+        }
+        
+        success, case_id, _ = self.test_create_case_with_type_specific_fields(
+            "abandoned_vehicle", abandoned_vehicle_fields, "manager"
+        )
+        if success and case_id:
+            self.test_get_case_detail(case_id, "manager")
+        
+        # Littering with specific fields
+        littering_fields = {
+            "littering": {
+                "litter_type": "cigarette_end",
+                "offence_witnessed": True,
+                "offender_description": "Female, mid-20s, wearing red jacket",
+                "supporting_evidence": "CCTV footage available from nearby shop"
+            }
+        }
+        
+        success, case_id, _ = self.test_create_case_with_type_specific_fields(
+            "littering", littering_fields, "manager"
+        )
+        if success and case_id:
+            self.test_get_case_detail(case_id, "manager")
+        
+        # Dog Fouling with specific fields
+        dog_fouling_fields = {
+            "dog_fouling": {
+                "occurrence_datetime": "2024-01-15T14:30:00",
+                "repeat_occurrence": "yes",
+                "offender_description": "Elderly man with walking stick",
+                "dog_description": "Large black Labrador",
+                "additional_info": "Occurs daily around same time"
+            }
+        }
+        
+        success, case_id, _ = self.test_create_case_with_type_specific_fields(
+            "dog_fouling", dog_fouling_fields, "manager"
+        )
+        if success and case_id:
+            self.test_get_case_detail(case_id, "manager")
+        
+        # PSPO with specific fields
+        pspo_fields = {
+            "pspo_dog_control": {
+                "breach_nature": "dogs_off_lead",
+                "location_within_area": "Children's playground area",
+                "signage_present": "yes",
+                "exemptions_claimed": "None claimed",
+                "officer_notes": "Multiple dogs running freely in restricted area"
+            }
+        }
+        
+        success, case_id, _ = self.test_create_case_with_type_specific_fields(
+            "pspo_dog_control", pspo_fields, "manager"
+        )
+        if success and case_id:
+            self.test_get_case_detail(case_id, "manager")
+            
+            # Test updating type-specific fields
+            updated_pspo_fields = {
+                "pspo_dog_control": {
+                    "breach_nature": "failure_to_pick_up",
+                    "location_within_area": "Main park entrance",
+                    "signage_present": "yes",
+                    "exemptions_claimed": "Guide dog exemption claimed but invalid",
+                    "officer_notes": "Updated after further investigation"
+                }
+            }
+            self.test_update_case_type_specific_fields(case_id, updated_pspo_fields, "manager")
+        
+        # Test public reports with type-specific fields
+        print("\n🌐 Testing Public Reports with Type-Specific Fields")
+        print("-" * 40)
+        
+        self.test_public_report_with_type_specific_fields("fly_tipping", fly_tipping_fields)
+        self.test_public_report_with_type_specific_fields("abandoned_vehicle", abandoned_vehicle_fields)
 
     def print_summary(self):
         """Print test summary"""
