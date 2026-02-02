@@ -24,6 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { CaseTypeFields } from '@/components/CaseTypeFields';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -41,7 +43,8 @@ const PublicReport = () => {
       address: ''
     },
     reporter_name: '',
-    reporter_contact: ''
+    reporter_contact: '',
+    type_specific_fields: {}
   });
 
   const handlePhotoUpload = (e) => {
