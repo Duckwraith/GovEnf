@@ -262,6 +262,7 @@ class PublicReport(BaseModel):
     reporter_name: Optional[str] = None
     reporter_contact: Optional[str] = None
     evidence_files: Optional[List[str]] = None  # Base64 encoded files
+    type_specific_fields: Optional[CaseTypeSpecificFields] = None
 
 # Helper Functions
 def hash_password(password: str) -> str:
