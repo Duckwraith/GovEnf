@@ -203,7 +203,11 @@ const PublicReport = () => {
                 <Label htmlFor="case_type">What type of issue are you reporting? *</Label>
                 <Select
                   value={report.case_type}
-                  onValueChange={(value) => setReport({ ...report, case_type: value })}
+                  onValueChange={(value) => setReport({ 
+                    ...report, 
+                    case_type: value,
+                    type_specific_fields: {} // Reset specific fields when type changes
+                  })}
                 >
                   <SelectTrigger data-testid="public-case-type-select">
                     <SelectValue placeholder="Select issue type" />
