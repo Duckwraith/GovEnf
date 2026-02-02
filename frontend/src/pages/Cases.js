@@ -61,7 +61,8 @@ const Cases = () => {
     location: {
       postcode: '',
       address: ''
-    }
+    },
+    type_specific_fields: {}
   });
 
   const fetchCases = useCallback(async () => {
