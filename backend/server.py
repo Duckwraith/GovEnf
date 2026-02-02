@@ -692,13 +692,16 @@ async def submit_public_report(report: PublicReport):
         location=report.location,
         reporter_name=report.reporter_name,
         reporter_contact=report.reporter_contact,
-        reference_number=ref_number
+        reference_number=ref_number,
+        type_specific_fields=report.type_specific_fields
     )
     
     doc = case.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
     doc['location'] = report.location.model_dump()
+    if report.type_specific_fields:
+        doc['type_specific_fields'] = report.type_specific_fields.model_dump()
     
     await db.cases.insert_one(doc)
     
