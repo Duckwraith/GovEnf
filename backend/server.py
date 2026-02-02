@@ -56,6 +56,99 @@ class CaseStatus(str, Enum):
     INVESTIGATING = "investigating"
     CLOSED = "closed"
 
+class WasteType(str, Enum):
+    HOUSEHOLD = "household"
+    COMMERCIAL = "commercial"
+    CONSTRUCTION = "construction"
+    MIXED = "mixed"
+    UNKNOWN = "unknown"
+
+class TaxMOTStatus(str, Enum):
+    VALID = "valid"
+    TAXED = "taxed"
+    UNTAXED = "untaxed"
+    EXPIRED = "expired"
+    UNKNOWN = "unknown"
+
+class VehicleCondition(str, Enum):
+    GOOD = "good"
+    DAMAGED = "damaged"
+    VANDALISED = "vandalised"
+    BURNT_OUT = "burnt_out"
+    UNKNOWN = "unknown"
+
+class LitterType(str, Enum):
+    CIGARETTE_END = "cigarette_end"
+    FOOD_PACKAGING = "food_packaging"
+    GENERAL_WASTE = "general_waste"
+    OTHER = "other"
+
+class PSPOBreachType(str, Enum):
+    DOGS_OFF_LEAD = "dogs_off_lead"
+    DOG_EXCLUSION_ZONE = "dog_exclusion_zone"
+    FAILURE_TO_PICK_UP = "failure_to_pick_up"
+    EXCEEDING_DOG_LIMIT = "exceeding_dog_limit"
+    OTHER = "other"
+
+class YesNoUnknown(str, Enum):
+    YES = "yes"
+    NO = "no"
+    UNKNOWN = "unknown"
+
+# Case-Type Specific Field Models
+class VehicleDetails(BaseModel):
+    registration_number: Optional[str] = None
+    make: Optional[str] = None
+    model: Optional[str] = None
+    colour: Optional[str] = None
+
+class FlyTippingDetails(BaseModel):
+    waste_description: Optional[str] = None
+    estimated_quantity: Optional[str] = None
+    waste_type: Optional[WasteType] = None
+    offender_witnessed: Optional[bool] = None
+    offender_description: Optional[str] = None
+    vehicle_details: Optional[VehicleDetails] = None
+    identifying_evidence: Optional[str] = None
+
+class AbandonedVehicleDetails(BaseModel):
+    registration_number: Optional[str] = None
+    make: Optional[str] = None
+    model: Optional[str] = None
+    colour: Optional[str] = None
+    tax_status: Optional[TaxMOTStatus] = None
+    mot_status: Optional[TaxMOTStatus] = None
+    condition: Optional[VehicleCondition] = None
+    estimated_time_at_location: Optional[str] = None
+    causing_obstruction: Optional[bool] = None
+
+class LitteringDetails(BaseModel):
+    litter_type: Optional[LitterType] = None
+    offence_witnessed: Optional[bool] = None
+    offender_description: Optional[str] = None
+    supporting_evidence: Optional[str] = None
+
+class DogFoulingDetails(BaseModel):
+    occurrence_datetime: Optional[str] = None
+    repeat_occurrence: Optional[YesNoUnknown] = None
+    offender_description: Optional[str] = None
+    dog_description: Optional[str] = None
+    additional_info: Optional[str] = None
+
+class PSPODetails(BaseModel):
+    breach_nature: Optional[PSPOBreachType] = None
+    location_within_area: Optional[str] = None
+    signage_present: Optional[YesNoUnknown] = None
+    exemptions_claimed: Optional[str] = None
+    officer_notes: Optional[str] = None
+
+class CaseTypeSpecificFields(BaseModel):
+    fly_tipping: Optional[FlyTippingDetails] = None
+    abandoned_vehicle: Optional[AbandonedVehicleDetails] = None
+    littering: Optional[LitteringDetails] = None
+    dog_fouling: Optional[DogFoulingDetails] = None
+    pspo_dog_control: Optional[PSPODetails] = None
+
 # Pydantic Models
 class UserBase(BaseModel):
     email: EmailStr
