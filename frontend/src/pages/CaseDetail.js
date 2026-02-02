@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
@@ -67,12 +67,7 @@ const CaseDetail = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
-    fetchCaseData();
-    fetchUsers();
-  }, [caseId]);
-
-  const fetchCaseData = async () => {
+  const fetchCaseData = useCallback(async () => {
     try {
       const [caseRes, notesRes, evidenceRes, auditRes] = await Promise.all([
         axios.get(`${API}/cases/${caseId}`),
