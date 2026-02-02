@@ -1,0 +1,68 @@
+{
+  "summary": "Completed testing of case-type specific custom fields functionality. Backend APIs fully functional with 100% success rate for all case types (Fly Tipping, Abandoned Vehicle, Littering, Dog Fouling, PSPO). Critical frontend issue found: case-type specific fields not rendering in UI despite backend support.",
+  
+  "backend_issues": {
+    "critical_bugs": [],
+    "flaky_endpoints": []
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "CaseTypeFields / Create Case Dialog",
+        "issue": "Case-type specific fields not appearing when case type is selected in Create Case dialog - CaseTypeFields component not rendering",
+        "selector": "[data-testid='fly-tipping-waste-description'], [data-testid='abandoned-vehicle-reg']",
+        "fix_priority": "CRITICAL"
+      },
+      {
+        "component": "CaseTypeFields / Public Report Form", 
+        "issue": "Case-type specific fields not appearing when case type is selected in Public Report form - conditional rendering not working",
+        "selector": "text='Fly Tipping Details', text='Abandoned Vehicle Details'",
+        "fix_priority": "CRITICAL"
+      },
+      {
+        "component": "Cases Page",
+        "issue": "No cases displaying on Cases page (shows 0 cases found) despite backend having cases - possible filtering or data loading issue",
+        "selector": "[data-testid^='case-item-']",
+        "fix_priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Case type selection to field rendering",
+        "issue": "CaseTypeFields component not being rendered when case type changes in both Create Case and Public Report forms",
+        "affected_selectors": ["CaseTypeFields component", "case-type specific field cards"]
+      }
+    ],
+    "design_issues": []
+  },
+
+  "passed_tests": [
+    "Backend login for all roles (manager, supervisor, officer)",
+    "Backend case creation with type-specific fields for all case types",
+    "Backend case retrieval with type-specific fields",
+    "Backend case update with type-specific fields", 
+    "Backend public report submission with type-specific fields",
+    "Backend API endpoints for Fly Tipping, Abandoned Vehicle, Littering, Dog Fouling, PSPO",
+    "Frontend login and navigation to Cases page",
+    "Frontend Create Case dialog opening",
+    "Frontend case type dropdown functionality",
+    "Frontend Public Report page loading and case type dropdown",
+    "Frontend basic case information form fields",
+    "Frontend case submission (without type-specific fields)"
+  ],
+
+  "test_report_links": ["/app/backend_test.py"],
+
+  "success_percentage": {
+    "backend": "100%",
+    "frontend": "40%"
+  },
+
+  "updated_files": ["/app/backend_test.py"],
+
+  "action_item_for_main_agent": "CRITICAL: Fix CaseTypeFields component rendering issue. The component is not appearing when case types are selected in both Create Case dialog and Public Report form. Backend fully supports case-type specific fields but frontend conditional rendering is broken. Also investigate Cases page showing 0 cases despite backend having data.",
+
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}
