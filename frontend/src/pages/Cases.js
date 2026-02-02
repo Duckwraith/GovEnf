@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
@@ -62,15 +62,11 @@ const Cases = () => {
     }
   });
 
-  useEffect(() => {
-    fetchCases();
-  }, [filters.status, filters.case_type]);
-
-  const fetchCases = async () => {
+  const fetchCases = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (filters.status) params.append('status', filters.status);
-      if (filters.case_type) params.append('case_type', filters.case_type);
+      if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+      if (filters.case_type && filters.case_type !== 'all') params.append('case_type', filters.case_type);
       
       const response = await axios.get(`${API}/cases?${params.toString()}`);
       setCases(response.data);
@@ -79,7 +75,11 @@ const Cases = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.status, filters.case_type]);
+
+  useEffect(() => {
+    fetchCases();
+  }, [fetchCases]);
 
   const handleCreateCase = async (e) => {
     e.preventDefault();
