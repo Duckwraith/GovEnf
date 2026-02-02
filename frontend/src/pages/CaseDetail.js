@@ -69,6 +69,8 @@ const CaseDetail = () => {
   const [uploading, setUploading] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [typeSpecificFields, setTypeSpecificFields] = useState({});
+  const [savingFields, setSavingFields] = useState(false);
 
   const fetchCaseData = useCallback(async () => {
     try {
@@ -79,6 +81,7 @@ const CaseDetail = () => {
         axios.get(`${API}/cases/${caseId}/audit-log`)
       ]);
       setCaseData(caseRes.data);
+      setTypeSpecificFields(caseRes.data.type_specific_fields || {});
       setNotes(notesRes.data);
       setEvidence(evidenceRes.data);
       setAuditLog(auditRes.data);
