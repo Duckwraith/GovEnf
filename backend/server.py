@@ -477,6 +477,8 @@ async def create_case(case_data: CaseCreate, current_user: dict = Depends(get_cu
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
     doc['location'] = case_data.location.model_dump()
+    if case_data.type_specific_fields:
+        doc['type_specific_fields'] = case_data.type_specific_fields.model_dump()
     
     await db.cases.insert_one(doc)
     await create_audit_log(case.id, "CREATED", f"Case {ref_number} created", current_user)
