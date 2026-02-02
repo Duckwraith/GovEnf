@@ -504,6 +504,10 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
     if updates.location:
         update_data["location"] = updates.location.model_dump()
     
+    # Handle type-specific fields
+    if updates.type_specific_fields:
+        update_data["type_specific_fields"] = updates.type_specific_fields.model_dump()
+    
     # Handle status changes
     if updates.status:
         update_data["status"] = updates.status.value
