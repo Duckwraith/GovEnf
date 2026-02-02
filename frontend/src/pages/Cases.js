@@ -303,7 +303,7 @@ const Cases = () => {
                   )}
                 </Button>
               </div>
-            </form>
+              </form>
             </ScrollArea>
           </DialogContent>
         </Dialog>
