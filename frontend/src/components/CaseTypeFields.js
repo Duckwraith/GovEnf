@@ -11,6 +11,16 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+import { AlertCircle } from 'lucide-react';
+
+// Required field indicator
+const RequiredLabel = ({ children, required = false }) => (
+  <Label className="flex items-center gap-1">
+    {children}
+    {required && <span className="text-red-500">*</span>}
+  </Label>
+);
 
 // Field configurations for each case type
 const WASTE_TYPES = [
