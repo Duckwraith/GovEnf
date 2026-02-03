@@ -914,6 +914,71 @@ async def get_case_type_team_mapping(current_user: dict = Depends(get_current_us
         }
     return result
 
+# What3Words Endpoints
+class W3WConvertRequest(BaseModel):
+    words: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+@api_router.post("/w3w/convert")
+async def convert_w3w(request: W3WConvertRequest, current_user: dict = Depends(get_current_user)):
+    """Convert between what3words and coordinates. Only one direction per call."""
+    # Check if W3W is enabled
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    if settings and not settings.get("enable_what3words", True):
+        raise HTTPException(status_code=400, detail="What3Words is disabled in system settings")
+    
+    if request.words:
+        # Convert W3W to coordinates
+        result = await w3w_convert_to_coordinates(request.words)
+        if result:
+            return {
+                "success": True,
+                "words": result["words"],
+                "latitude": result["latitude"],
+                "longitude": result["longitude"],
+                "nearestPlace": result.get("nearestPlace", "")
+            }
+        return {"success": False, "error": "Could not convert what3words address"}
+    
+    elif request.latitude is not None and request.longitude is not None:
+        # Convert coordinates to W3W
+        words = await w3w_convert_to_3wa(request.latitude, request.longitude)
+        if words:
+            return {
+                "success": True,
+                "words": words,
+                "latitude": request.latitude,
+                "longitude": request.longitude
+            }
+        return {"success": False, "error": "Could not convert coordinates to what3words"}
+    
+    raise HTTPException(status_code=400, detail="Provide either 'words' or 'latitude' and 'longitude'")
+
+@api_router.get("/w3w/status")
+async def get_w3w_status(current_user: dict = Depends(get_current_user)):
+    """Check if What3Words is enabled and API is available"""
+    settings = await db.system_settings.find_one({"id": "system_settings"}, {"_id": 0})
+    enabled = settings.get("enable_what3words", True) if settings else True
+    
+    # Quick API health check
+    api_available = False
+    if enabled:
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{W3W_API_URL}/available-languages",
+                    params={"key": W3W_API_KEY}
+                )
+                api_available = response.status_code == 200
+        except Exception:
+            api_available = False
+    
+    return {
+        "enabled": enabled,
+        "api_available": api_available
+    }
+
 # Case Endpoints
 @api_router.get("/cases")
 async def get_cases(
