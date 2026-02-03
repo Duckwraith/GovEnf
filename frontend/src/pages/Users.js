@@ -57,6 +57,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -68,11 +69,13 @@ const Users = () => {
     email: '',
     name: '',
     password: '',
-    role: 'officer'
+    role: 'officer',
+    teams: []
   });
 
   useEffect(() => {
     fetchUsers();
+    fetchTeams();
   }, []);
 
   const fetchUsers = async () => {
@@ -83,6 +86,15 @@ const Users = () => {
       toast.error('Failed to fetch users');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const response = await axios.get(`${API}/teams`);
+      setTeams(response.data.filter(t => t.is_active !== false));
+    } catch (error) {
+      console.error('Failed to fetch teams:', error);
     }
   };
 
@@ -99,7 +111,7 @@ const Users = () => {
       await axios.post(`${API}/auth/register`, newUser);
       toast.success('User created successfully');
       setShowCreateDialog(false);
-      setNewUser({ email: '', name: '', password: '', role: 'officer' });
+      setNewUser({ email: '', name: '', password: '', role: 'officer', teams: [] });
       fetchUsers();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to create user');
@@ -115,7 +127,9 @@ const Users = () => {
       await axios.put(`${API}/users/${selectedUser.id}`, {
         name: selectedUser.name,
         role: selectedUser.role,
-        is_active: selectedUser.is_active
+        is_active: selectedUser.is_active,
+        teams: selectedUser.teams || [],
+        cross_team_access: selectedUser.cross_team_access || false
       });
       toast.success('User updated successfully');
       setShowEditDialog(false);
