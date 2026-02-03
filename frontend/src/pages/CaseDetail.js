@@ -540,6 +540,7 @@ const CaseDetail = () => {
                 onChange={setTypeSpecificFields}
                 readOnly={!canEditCase()}
                 hasEvidence={evidence.length > 0}
+                isWasteManagement={isWasteManagement}
               />
               {!caseData.case_type && (
                 <p className="text-[#505A5F] text-center py-8">No case type specific fields available.</p>
