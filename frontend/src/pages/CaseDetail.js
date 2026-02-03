@@ -67,14 +67,24 @@ const CaseDetail = () => {
   const [evidence, setEvidence] = useState([]);
   const [auditLog, setAuditLog] = useState([]);
   const [users, setUsers] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [userTeamTypes, setUserTeamTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newNote, setNewNote] = useState('');
   const [submittingNote, setSubmittingNote] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showClosureDialog, setShowClosureDialog] = useState(false);
+  const [closureReason, setClosureReason] = useState('');
+  const [finalNote, setFinalNote] = useState('');
+  const [closingCase, setClosingCase] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [typeSpecificFields, setTypeSpecificFields] = useState({});
   const [savingFields, setSavingFields] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [newDescription, setNewDescription] = useState('');
+
+  const isWasteManagement = userTeamTypes.includes('waste_management');
 
   const fetchCaseData = useCallback(async () => {
     try {
