@@ -614,7 +614,7 @@ export const PSPOFields = ({ data, onChange, readOnly = false }) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Nature of PSPO Breach</Label>
+            <RequiredLabel required>Nature of PSPO Breach</RequiredLabel>
             <Select
               value={fields.breach_nature || ''}
               onValueChange={(v) => updateField('breach_nature', v)}
@@ -631,7 +631,7 @@ export const PSPOFields = ({ data, onChange, readOnly = false }) => {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Signage Present at Location?</Label>
+            <RequiredLabel required>Signage Present at Location?</RequiredLabel>
             <Select
               value={fields.signage_present || ''}
               onValueChange={(v) => updateField('signage_present', v)}
