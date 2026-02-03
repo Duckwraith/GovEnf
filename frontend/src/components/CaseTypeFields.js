@@ -265,15 +265,31 @@ export const AbandonedVehicleFields = ({ data, onChange, readOnly = false }) => 
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <Label>Registration Number *</Label>
+          <div className="space-y-2 col-span-2 md:col-span-1">
+            <RequiredLabel required={!fields.registration_not_visible}>Registration Number</RequiredLabel>
             <Input
               placeholder="e.g., AB12 CDE"
               value={fields.registration_number || ''}
               onChange={(e) => updateField('registration_number', e.target.value.toUpperCase())}
-              disabled={readOnly}
+              disabled={readOnly || fields.registration_not_visible}
               data-testid="abandoned-vehicle-reg"
+              className={fields.registration_not_visible ? 'bg-gray-100' : ''}
             />
+            <div className="flex items-center space-x-2 mt-1">
+              <Checkbox
+                id="reg-not-visible"
+                checked={fields.registration_not_visible || false}
+                onCheckedChange={(checked) => {
+                  updateField('registration_not_visible', checked);
+                  if (checked) updateField('registration_number', '');
+                }}
+                disabled={readOnly}
+                data-testid="abandoned-vehicle-reg-not-visible"
+              />
+              <label htmlFor="reg-not-visible" className="text-xs text-[#505A5F] cursor-pointer">
+                Registration not visible
+              </label>
+            </div>
           </div>
           <div className="space-y-2">
             <Label>Make</Label>
