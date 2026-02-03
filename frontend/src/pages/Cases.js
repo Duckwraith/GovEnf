@@ -358,10 +358,16 @@ const Cases = () => {
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="fly_tipping">Fly Tipping</SelectItem>
+                <SelectItem value="fly_tipping_private">Fly Tipping (Private)</SelectItem>
+                <SelectItem value="fly_tipping_organised">Fly Tipping (Organised)</SelectItem>
                 <SelectItem value="abandoned_vehicle">Abandoned Vehicle</SelectItem>
+                <SelectItem value="nuisance_vehicle">Nuisance Vehicle</SelectItem>
                 <SelectItem value="littering">Littering</SelectItem>
                 <SelectItem value="dog_fouling">Dog Fouling</SelectItem>
                 <SelectItem value="pspo_dog_control">PSPO Dog Control</SelectItem>
+                <SelectItem value="untidy_land">Untidy Land</SelectItem>
+                <SelectItem value="high_hedges">High Hedges</SelectItem>
+                <SelectItem value="waste_carrier_licensing">Waste Carrier</SelectItem>
               </SelectContent>
             </Select>
             {hasActiveFilters && (
