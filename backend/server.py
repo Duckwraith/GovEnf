@@ -1112,15 +1112,26 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
         await log_access_decision(current_user, f"case:{case_id}", "update", False, "Team access denied")
         raise HTTPException(status_code=403, detail="Not authorized to update this case - team access denied")
     
-    # Permission checks
+    # Permission checks for officers
     if current_user["role"] == UserRole.OFFICER.value:
         if case.get("assigned_to") != current_user["id"]:
             raise HTTPException(status_code=403, detail="Can only update assigned cases")
-        # Officers can't change assignment or close cases
+        # Officers can't change assignment
         if updates.assigned_to:
             raise HTTPException(status_code=403, detail="Officers cannot reassign cases")
+        # Officers CAN close cases but need closure_reason and final_note
         if updates.status == CaseStatus.CLOSED:
-            raise HTTPException(status_code=403, detail="Officers cannot close cases")
+            if not updates.closure_reason or not updates.final_note:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Closure reason and final note are required when closing a case"
+                )
+    
+    # Only supervisors/managers can reopen closed cases
+    if case.get("status") == CaseStatus.CLOSED.value:
+        if updates.status and updates.status != CaseStatus.CLOSED:
+            if current_user["role"] == UserRole.OFFICER.value:
+                raise HTTPException(status_code=403, detail="Officers cannot reopen closed cases")
     
     update_data = {k: v for k, v in updates.model_dump(exclude_none=True).items()}
     audit_details = []
@@ -1162,10 +1173,22 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
                 })
             update_data["location_history"] = location_history
             update_data["location"] = new_location
+            # Cache W3W timestamp
+            update_data["w3w_cached_at"] = datetime.now(timezone.utc).isoformat()
             audit_details.append(f"Location updated from {old_location.get('address', 'unknown')} to {new_location.get('address', 'unknown')}")
     
     # Handle type-specific fields
     if updates.type_specific_fields:
+        # Check clearance outcome permissions for fly-tipping cases
+        if is_fly_tipping_case(case.get("case_type", "")):
+            clearance = updates.type_specific_fields.clearance_outcome
+            if clearance:
+                # Validate clearance fields
+                if clearance.items_cleared is False and not clearance.reason_not_cleared:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Reason not cleared is required when items are not cleared"
+                    )
         update_data["type_specific_fields"] = updates.type_specific_fields.model_dump()
         audit_details.append("Case-specific details updated")
     
@@ -1173,11 +1196,24 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
     if updates.description and updates.description != case.get("description"):
         audit_details.append(f"Description updated")
     
-    # Handle status changes (supervisor/manager only for closing)
+    # Handle status changes
     if updates.status:
         update_data["status"] = updates.status.value
         if updates.status == CaseStatus.CLOSED:
             update_data["closed_at"] = datetime.now(timezone.utc).isoformat()
+            update_data["closed_by"] = current_user["id"]
+            update_data["closed_by_name"] = current_user["name"]
+            if updates.closure_reason:
+                update_data["closure_reason"] = updates.closure_reason
+            if updates.final_note:
+                update_data["final_note"] = updates.final_note
+            audit_details.append(f"Case CLOSED. Reason: {updates.closure_reason}")
+        elif case.get("status") == CaseStatus.CLOSED.value:
+            # Reopening a case
+            update_data["closed_at"] = None
+            update_data["closed_by"] = None
+            update_data["closed_by_name"] = None
+            audit_details.append(f"Case REOPENED by {current_user['name']}")
         audit_details.append(f"Status changed to {updates.status.value}")
     
     # Handle assignment (supervisor/manager only)
