@@ -116,9 +116,33 @@ const CaseDetail = () => {
     }
   };
 
+  const fetchTeams = async () => {
+    try {
+      const response = await axios.get(`${API}/teams`);
+      setTeams(response.data);
+    } catch (error) {
+      console.error('Failed to fetch teams');
+    }
+  };
+
+  const fetchUserTeamTypes = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`);
+      if (response.data?.teams) {
+        const teamsRes = await axios.get(`${API}/teams`);
+        const userTeams = teamsRes.data.filter(t => response.data.teams.includes(t.id));
+        setUserTeamTypes(userTeams.map(t => t.team_type));
+      }
+    } catch (error) {
+      console.error('Failed to fetch user team types');
+    }
+  };
+
   useEffect(() => {
     fetchCaseData();
     fetchUsers();
+    fetchTeams();
+    fetchUserTeamTypes();
   }, [fetchCaseData]);
 
   const handleStatusChange = async (newStatus) => {
