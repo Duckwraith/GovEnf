@@ -187,10 +187,69 @@ class CaseTypeSpecificFields(BaseModel):
     pspo_dog_control: Optional[PSPODetails] = None
 
 # Pydantic Models
+
+# System Settings Model
+class MapSettings(BaseModel):
+    default_latitude: float = 51.5074
+    default_longitude: float = -0.1278
+    default_zoom: int = 12
+
+class SystemSettings(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = "system_settings"  # Singleton
+    app_title: str = "GovEnforce"
+    organisation_name: str = "Local Council"
+    organisation_address: str = ""
+    contact_email: str = ""
+    logo_base64: Optional[str] = None
+    map_settings: MapSettings = Field(default_factory=MapSettings)
+    # Optional settings
+    case_retention_days: int = 2555  # ~7 years for GDPR
+    default_working_area_postcode: str = ""
+    enable_what3words: bool = True
+    enable_public_reporting: bool = True
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_by: Optional[str] = None
+
+class SystemSettingsUpdate(BaseModel):
+    app_title: Optional[str] = None
+    organisation_name: Optional[str] = None
+    organisation_address: Optional[str] = None
+    contact_email: Optional[str] = None
+    logo_base64: Optional[str] = None
+    map_settings: Optional[MapSettings] = None
+    case_retention_days: Optional[int] = None
+    default_working_area_postcode: Optional[str] = None
+    enable_what3words: Optional[bool] = None
+    enable_public_reporting: Optional[bool] = None
+
+# Team Models
+class Team(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    team_type: TeamType
+    description: str = ""
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TeamCreate(BaseModel):
+    name: str
+    team_type: TeamType
+    description: str = ""
+
+class TeamUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+# User Models
 class UserBase(BaseModel):
     email: EmailStr
     name: str
     role: UserRole
+    teams: List[str] = []  # List of team IDs
+    cross_team_access: bool = False  # For supervisors with cross-team visibility
 
 class UserCreate(UserBase):
     password: str
