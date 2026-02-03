@@ -431,6 +431,51 @@ const Users = () => {
                 </Select>
               </div>
 
+              <div className="space-y-2">
+                <Label>Team Assignment</Label>
+                <div className="border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
+                  {teams.length === 0 ? (
+                    <p className="text-sm text-[#505A5F]">No teams available</p>
+                  ) : (
+                    teams.map(team => (
+                      <div key={team.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`team-${team.id}`}
+                          checked={(selectedUser.teams || []).includes(team.id)}
+                          onChange={(e) => {
+                            const currentTeams = selectedUser.teams || [];
+                            if (e.target.checked) {
+                              setSelectedUser({ ...selectedUser, teams: [...currentTeams, team.id] });
+                            } else {
+                              setSelectedUser({ ...selectedUser, teams: currentTeams.filter(t => t !== team.id) });
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-gray-300"
+                          data-testid={`team-checkbox-${team.id}`}
+                        />
+                        <label htmlFor={`team-${team.id}`} className="text-sm">{team.name}</label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-xs text-[#505A5F]">Users can be assigned to multiple teams</p>
+              </div>
+
+              {selectedUser.role === 'supervisor' && (
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div>
+                    <Label>Cross-Team Access</Label>
+                    <p className="text-xs text-[#505A5F]">View cases from all teams</p>
+                  </div>
+                  <Switch
+                    checked={selectedUser.cross_team_access || false}
+                    onCheckedChange={(checked) => setSelectedUser({ ...selectedUser, cross_team_access: checked })}
+                    data-testid="cross-team-switch"
+                  />
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <Label>Account Active</Label>
                 <Switch
