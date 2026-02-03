@@ -199,12 +199,73 @@ class PSPODetails(BaseModel):
     exemptions_claimed: Optional[str] = None
     officer_notes: Optional[str] = None
 
+# New case type specific fields
+class UntidyLandDetails(BaseModel):
+    land_type: Optional[str] = None  # residential, commercial, public
+    land_ownership: Optional[str] = None
+    issues_identified: Optional[List[str]] = None  # overgrown, debris, waste, etc.
+    previous_notices: Optional[bool] = None
+    notice_date: Optional[str] = None
+    compliance_deadline: Optional[str] = None
+    additional_notes: Optional[str] = None
+
+class HighHedgesDetails(BaseModel):
+    hedge_type: Optional[str] = None
+    hedge_height_meters: Optional[float] = None
+    complainant_details: Optional[str] = None
+    affected_property: Optional[str] = None
+    hedge_owner_details: Optional[str] = None
+    previous_complaints: Optional[bool] = None
+    mediation_attempted: Optional[bool] = None
+    additional_notes: Optional[str] = None
+
+class WasteCarrierDetails(BaseModel):
+    business_name: Optional[str] = None
+    carrier_license_number: Optional[str] = None
+    license_status: Optional[str] = None  # valid, expired, none
+    vehicle_registration: Optional[str] = None
+    waste_types_carried: Optional[List[str]] = None
+    breach_details: Optional[str] = None
+    evidence_collected: Optional[str] = None
+
+class NuisanceVehicleDetails(BaseModel):
+    vehicle_registration: Optional[str] = None
+    vehicle_make: Optional[str] = None
+    vehicle_model: Optional[str] = None
+    vehicle_colour: Optional[str] = None
+    nuisance_type: Optional[str] = None  # on_street_seller, parking, asb
+    location_frequency: Optional[str] = None  # daily, weekly, occasional
+    business_activity: Optional[str] = None  # if on_street_seller
+    obstruction_caused: Optional[bool] = None
+    previous_warnings: Optional[int] = None
+    additional_notes: Optional[str] = None
+
+# Waste Management clearance outcome (for fly-tipping cases)
+class ClearanceOutcome(BaseModel):
+    items_cleared: Optional[bool] = None  # Yes/No mandatory for WM
+    reason_not_cleared: Optional[str] = None  # Mandatory if items_cleared = False
+    clearance_date: Optional[str] = None
+    cleared_by: Optional[str] = None
+    disposal_method: Optional[str] = None
+
+# Case closure details
+class CaseClosureDetails(BaseModel):
+    closure_reason: str
+    final_note: str
+    closed_by: Optional[str] = None
+    closed_at: Optional[str] = None
+
 class CaseTypeSpecificFields(BaseModel):
     fly_tipping: Optional[FlyTippingDetails] = None
     abandoned_vehicle: Optional[AbandonedVehicleDetails] = None
     littering: Optional[LitteringDetails] = None
     dog_fouling: Optional[DogFoulingDetails] = None
     pspo_dog_control: Optional[PSPODetails] = None
+    untidy_land: Optional[UntidyLandDetails] = None
+    high_hedges: Optional[HighHedgesDetails] = None
+    waste_carrier: Optional[WasteCarrierDetails] = None
+    nuisance_vehicle: Optional[NuisanceVehicleDetails] = None
+    clearance_outcome: Optional[ClearanceOutcome] = None  # For WM fly-tipping
 
 # Pydantic Models
 
