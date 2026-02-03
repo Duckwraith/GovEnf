@@ -24,13 +24,15 @@ import {
   X,
   Download,
   ClipboardList,
-  Save
+  Save,
+  Lock,
+  Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -48,7 +50,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { CaseTypeFields } from '@/components/CaseTypeFields';
+import LocationTab from '@/components/LocationTab';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
