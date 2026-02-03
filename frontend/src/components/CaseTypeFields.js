@@ -424,7 +424,7 @@ export const LitteringFields = ({ data, onChange, readOnly = false }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>Type of Litter</Label>
+          <RequiredLabel required>Type of Litter</RequiredLabel>
           <Select
             value={fields.litter_type || ''}
             onValueChange={(v) => updateField('litter_type', v)}
@@ -441,14 +441,32 @@ export const LitteringFields = ({ data, onChange, readOnly = false }) => {
           </Select>
         </div>
 
-        <div className="flex items-center justify-between">
-          <Label>Was the offence witnessed?</Label>
-          <Switch
-            checked={fields.offence_witnessed || false}
-            onCheckedChange={(v) => updateField('offence_witnessed', v)}
-            disabled={readOnly}
-            data-testid="littering-witnessed"
-          />
+        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-sm">
+          <RequiredLabel required>Was the offence witnessed?</RequiredLabel>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="littering-witnessed"
+                checked={fields.offence_witnessed === true}
+                onChange={() => updateField('offence_witnessed', true)}
+                disabled={readOnly}
+                className="w-4 h-4"
+              />
+              <span className="text-sm">Yes</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="littering-witnessed"
+                checked={fields.offence_witnessed === false}
+                onChange={() => updateField('offence_witnessed', false)}
+                disabled={readOnly}
+                className="w-4 h-4"
+              />
+              <span className="text-sm">No</span>
+            </label>
+          </div>
         </div>
 
         {fields.offence_witnessed && (
