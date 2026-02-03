@@ -515,46 +515,135 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
         if case.get("assigned_to") != current_user["id"]:
             raise HTTPException(status_code=403, detail="Can only update assigned cases")
         # Officers can't change assignment or close cases
-        if updates.assigned_to or updates.status == CaseStatus.CLOSED:
-            raise HTTPException(status_code=403, detail="Officers cannot reassign or close cases")
+        if updates.assigned_to:
+            raise HTTPException(status_code=403, detail="Officers cannot reassign cases")
+        if updates.status == CaseStatus.CLOSED:
+            raise HTTPException(status_code=403, detail="Officers cannot close cases")
     
     update_data = {k: v for k, v in updates.model_dump(exclude_none=True).items()}
+    audit_details = []
     
+    # Handle location updates with history tracking
     if updates.location:
-        update_data["location"] = updates.location.model_dump()
+        new_location = updates.location.model_dump()
+        old_location = case.get("location", {})
+        
+        # Check if location actually changed
+        location_changed = (
+            new_location.get("latitude") != old_location.get("latitude") or
+            new_location.get("longitude") != old_location.get("longitude") or
+            new_location.get("address") != old_location.get("address") or
+            new_location.get("postcode") != old_location.get("postcode") or
+            new_location.get("what3words") != old_location.get("what3words")
+        )
+        
+        if location_changed:
+            # Store location history
+            location_history = case.get("location_history", []) or []
+            if old_location:
+                location_history.append({
+                    "location": old_location,
+                    "changed_by": current_user["id"],
+                    "changed_by_name": current_user["name"],
+                    "changed_at": datetime.now(timezone.utc).isoformat()
+                })
+            update_data["location_history"] = location_history
+            update_data["location"] = new_location
+            audit_details.append(f"Location updated from {old_location.get('address', 'unknown')} to {new_location.get('address', 'unknown')}")
     
     # Handle type-specific fields
     if updates.type_specific_fields:
         update_data["type_specific_fields"] = updates.type_specific_fields.model_dump()
+        audit_details.append("Case-specific details updated")
     
-    # Handle status changes
+    # Handle description update
+    if updates.description and updates.description != case.get("description"):
+        audit_details.append(f"Description updated")
+    
+    # Handle status changes (supervisor/manager only for closing)
     if updates.status:
         update_data["status"] = updates.status.value
         if updates.status == CaseStatus.CLOSED:
             update_data["closed_at"] = datetime.now(timezone.utc).isoformat()
+        audit_details.append(f"Status changed to {updates.status.value}")
     
-    # Handle assignment
+    # Handle assignment (supervisor/manager only)
     if updates.assigned_to:
-        assignee = await db.users.find_one({"id": updates.assigned_to}, {"_id": 0, "password": 0})
-        if assignee:
-            update_data["assigned_to_name"] = assignee["name"]
-            # Create notification for assignee
-            await create_notification(
-                updates.assigned_to,
-                "Case Assigned",
-                f"Case {case['reference_number']} has been assigned to you",
-                case_id
-            )
-        if case.get("status") == CaseStatus.NEW.value:
-            update_data["status"] = CaseStatus.ASSIGNED.value
+        if updates.assigned_to == "unassigned":
+            update_data["assigned_to"] = None
+            update_data["assigned_to_name"] = None
+            audit_details.append("Case unassigned")
+        else:
+            assignee = await db.users.find_one({"id": updates.assigned_to}, {"_id": 0, "password": 0})
+            if assignee:
+                update_data["assigned_to_name"] = assignee["name"]
+                # Create notification for assignee
+                await create_notification(
+                    updates.assigned_to,
+                    "Case Assigned",
+                    f"Case {case['reference_number']} has been assigned to you",
+                    case_id
+                )
+                audit_details.append(f"Assigned to {assignee['name']}")
+            if case.get("status") == CaseStatus.NEW.value:
+                update_data["status"] = CaseStatus.ASSIGNED.value
     
     update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
     
     await db.cases.update_one({"id": case_id}, {"$set": update_data})
     
-    # Create audit log
-    changes = ", ".join([f"{k}: {v}" for k, v in updates.model_dump(exclude_none=True).items()])
-    await create_audit_log(case_id, "UPDATED", f"Updated: {changes}", current_user)
+    # Create audit log with detailed changes
+    if audit_details:
+        await create_audit_log(case_id, "UPDATED", "; ".join(audit_details), current_user)
+    
+    updated_case = await db.cases.find_one({"id": case_id}, {"_id": 0})
+    return updated_case
+
+# Dedicated location update endpoint for map pin dragging
+@api_router.put("/cases/{case_id}/location")
+async def update_case_location(case_id: str, location: LocationUpdate, current_user: dict = Depends(get_current_user)):
+    case = await db.cases.find_one({"id": case_id}, {"_id": 0})
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+    
+    # Officers can only update location for assigned cases
+    if current_user["role"] == UserRole.OFFICER.value:
+        if case.get("assigned_to") != current_user["id"]:
+            raise HTTPException(status_code=403, detail="Can only update assigned cases")
+    
+    new_location = location.model_dump()
+    old_location = case.get("location", {})
+    
+    # Store location history
+    location_history = case.get("location_history", []) or []
+    if old_location:
+        location_history.append({
+            "location": old_location,
+            "changed_by": current_user["id"],
+            "changed_by_name": current_user["name"],
+            "changed_at": datetime.now(timezone.utc).isoformat()
+        })
+    
+    await db.cases.update_one(
+        {"id": case_id},
+        {
+            "$set": {
+                "location": new_location,
+                "location_history": location_history,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Detailed audit log for location change
+    old_coords = f"({old_location.get('latitude', 'N/A')}, {old_location.get('longitude', 'N/A')})"
+    new_coords = f"({new_location.get('latitude', 'N/A')}, {new_location.get('longitude', 'N/A')})"
+    await create_audit_log(
+        case_id, 
+        "LOCATION_UPDATED", 
+        f"Location changed from {old_coords} to {new_coords}. Address: {new_location.get('address', 'N/A')}",
+        current_user
+    )
     
     updated_case = await db.cases.find_one({"id": case_id}, {"_id": 0})
     return updated_case
