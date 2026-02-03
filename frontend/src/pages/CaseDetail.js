@@ -420,7 +420,12 @@ const CaseDetail = () => {
         <TabsContent value="details">
           <Card className="border">
             <CardHeader className="border-b flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">Case Details</CardTitle>
+              <div>
+                <CardTitle className="text-lg">Case Details</CardTitle>
+                <CardDescription>
+                  Offence-specific information for this case
+                </CardDescription>
+              </div>
               {canEditCase() && (
                 <Button
                   onClick={handleSaveTypeSpecificFields}
@@ -448,12 +453,22 @@ const CaseDetail = () => {
                 data={typeSpecificFields}
                 onChange={setTypeSpecificFields}
                 readOnly={!canEditCase()}
+                hasEvidence={evidence.length > 0}
               />
               {!caseData.case_type && (
                 <p className="text-[#505A5F] text-center py-8">No case type specific fields available.</p>
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Location Tab */}
+        <TabsContent value="location">
+          <LocationTab
+            caseData={caseData}
+            canEdit={canEditCase()}
+            onLocationUpdate={() => fetchCaseData()}
+          />
         </TabsContent>
 
         {/* Notes Tab */}
