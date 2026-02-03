@@ -359,7 +359,7 @@ export const AbandonedVehicleFields = ({ data, onChange, readOnly = false }) => 
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Vehicle Condition</Label>
+            <RequiredLabel required>Vehicle Condition</RequiredLabel>
             <Select
               value={fields.condition || ''}
               onValueChange={(v) => updateField('condition', v)}
@@ -379,7 +379,7 @@ export const AbandonedVehicleFields = ({ data, onChange, readOnly = false }) => 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Estimated Time at Location</Label>
+            <RequiredLabel required>Estimated Time at Location</RequiredLabel>
             <Input
               placeholder="e.g., 2 weeks, Several months"
               value={fields.estimated_time_at_location || ''}
