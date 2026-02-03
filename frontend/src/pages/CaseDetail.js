@@ -146,12 +146,64 @@ const CaseDetail = () => {
   }, [fetchCaseData]);
 
   const handleStatusChange = async (newStatus) => {
+    // If closing, show the closure dialog
+    if (newStatus === 'closed') {
+      setShowClosureDialog(true);
+      return;
+    }
+    
     try {
       await axios.put(`${API}/cases/${caseId}`, { status: newStatus });
       toast.success('Status updated');
       fetchCaseData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to update status');
+    }
+  };
+
+  const handleCloseCase = async () => {
+    if (!closureReason.trim() || !finalNote.trim()) {
+      toast.error('Please provide both closure reason and final note');
+      return;
+    }
+    
+    setClosingCase(true);
+    try {
+      await axios.put(`${API}/cases/${caseId}`, { 
+        status: 'closed',
+        closure_reason: closureReason,
+        final_note: finalNote
+      });
+      toast.success('Case closed successfully');
+      setShowClosureDialog(false);
+      setClosureReason('');
+      setFinalNote('');
+      fetchCaseData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to close case');
+    } finally {
+      setClosingCase(false);
+    }
+  };
+
+  const handleReopenCase = async () => {
+    try {
+      await axios.put(`${API}/cases/${caseId}`, { status: 'investigating' });
+      toast.success('Case reopened');
+      fetchCaseData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to reopen case');
+    }
+  };
+
+  const handleSaveDescription = async () => {
+    try {
+      await axios.put(`${API}/cases/${caseId}`, { description: newDescription });
+      toast.success('Description updated');
+      setEditingDescription(false);
+      fetchCaseData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to update description');
     }
   };
 
