@@ -801,13 +801,15 @@ async def submit_public_report(report: PublicReport):
         reporter_name=report.reporter_name,
         reporter_contact=report.reporter_contact,
         reference_number=ref_number,
-        type_specific_fields=report.type_specific_fields
+        type_specific_fields=report.type_specific_fields,
+        reporting_source=ReportingSource.PUBLIC
     )
     
     doc = case.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     doc['updated_at'] = doc['updated_at'].isoformat()
     doc['location'] = report.location.model_dump()
+    doc['reporting_source'] = ReportingSource.PUBLIC.value
     if report.type_specific_fields:
         doc['type_specific_fields'] = report.type_specific_fields.model_dump()
     
