@@ -288,8 +288,37 @@ const CaseDetail = () => {
                 <span className="text-sm text-[#505A5F]">
                   {getCaseTypeLabel(caseData.case_type)}
                 </span>
+                {caseData.reporting_source && (
+                  <Badge variant="outline" className="text-xs">
+                    <Globe className="w-3 h-3 mr-1" />
+                    {caseData.reporting_source === 'public' ? 'Public Report' : 
+                     caseData.reporting_source === 'officer' ? 'Officer Created' : 'Other Source'}
+                  </Badge>
+                )}
               </div>
               <p className="text-[#0B0C0C] mb-4">{caseData.description}</p>
+              
+              {/* System Metadata - Read Only */}
+              <div className="flex flex-wrap gap-4 text-sm text-[#505A5F] mb-3">
+                <div className="flex items-center gap-1" title="Read-only: System generated">
+                  <Lock className="w-3 h-3" />
+                  <Clock className="w-4 h-4" />
+                  <span>Created {new Date(caseData.created_at).toLocaleString('en-GB')}</span>
+                </div>
+                {caseData.updated_at && caseData.updated_at !== caseData.created_at && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>Updated {new Date(caseData.updated_at).toLocaleString('en-GB')}</span>
+                  </div>
+                )}
+                {caseData.closed_at && (
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Closed {new Date(caseData.closed_at).toLocaleString('en-GB')}</span>
+                  </div>
+                )}
+              </div>
+              
               <div className="flex flex-wrap gap-4 text-sm text-[#505A5F]">
                 {caseData.location?.address && (
                   <div className="flex items-center gap-1">
@@ -300,10 +329,6 @@ const CaseDetail = () => {
                     )}
                   </div>
                 )}
-                <div className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  <span>Created {new Date(caseData.created_at).toLocaleString('en-GB')}</span>
-                </div>
                 {caseData.assigned_to_name && (
                   <div className="flex items-center gap-1">
                     <User className="w-4 h-4" />
@@ -313,30 +338,29 @@ const CaseDetail = () => {
               </div>
             </div>
 
-            {/* Actions */}
-            {canEditCase() && (
-              <div className="flex flex-col gap-3 shrink-0">
-                {canAssign() && (
-                  <div className="space-y-1">
-                    <Label className="text-xs text-[#505A5F]">Assign to</Label>
-                    <Select
-                      value={caseData.assigned_to || ''}
-                      onValueChange={handleAssign}
-                    >
-                      <SelectTrigger className="w-48" data-testid="assign-select">
-                        <SelectValue placeholder="Select officer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned">Unassigned</SelectItem>
-                        {users.map((u) => (
-                          <SelectItem key={u.id} value={u.id}>
-                            {u.name} ({u.role})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+            {/* Actions - Supervisor/Manager controls */}
+            <div className="flex flex-col gap-3 shrink-0">
+              {canAssign() && (
+                <div className="space-y-1">
+                  <Label className="text-xs text-[#505A5F]">Assign to</Label>
+                  <Select
+                    value={caseData.assigned_to || ''}
+                    onValueChange={handleAssign}
+                  >
+                    <SelectTrigger className="w-48" data-testid="assign-select">
+                      <SelectValue placeholder="Select officer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Unassigned</SelectItem>
+                      {users.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>
+                          {u.name} ({u.role})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
                 
                 <div className="space-y-1">
                   <Label className="text-xs text-[#505A5F]">Status</Label>
