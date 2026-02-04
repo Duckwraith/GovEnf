@@ -107,7 +107,39 @@ const Dashboard = () => {
     );
   }
 
-  const statCards = [
+  // Different stats for officers vs supervisors/managers
+  const officerStatCards = [
+    {
+      title: 'My Cases',
+      value: myCases.length,
+      icon: FileText,
+      color: 'text-[#005EA5]',
+      bgColor: 'bg-blue-50'
+    },
+    {
+      title: 'Investigating',
+      value: myCases.filter(c => c.status === 'investigating').length,
+      icon: Clock,
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-50'
+    },
+    {
+      title: 'Closed by Me',
+      value: myCases.filter(c => c.status === 'closed').length,
+      icon: CheckCircle,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50'
+    },
+    {
+      title: 'New Assigned',
+      value: myCases.filter(c => c.status === 'assigned').length,
+      icon: AlertTriangle,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
+    }
+  ];
+
+  const managerStatCards = [
     {
       title: 'Total Cases',
       value: stats?.total_cases || 0,
@@ -137,6 +169,8 @@ const Dashboard = () => {
       bgColor: 'bg-red-50'
     }
   ];
+
+  const statCards = isOfficer ? officerStatCards : managerStatCards;
 
   return (
     <div className="space-y-6" data-testid="dashboard">
