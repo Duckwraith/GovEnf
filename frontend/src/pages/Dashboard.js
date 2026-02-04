@@ -181,7 +181,7 @@ const Dashboard = () => {
             Welcome back, {user?.name?.split(' ')[0]}
           </h1>
           <p className="text-[#505A5F] mt-1">
-            Here's what's happening with your enforcement cases today.
+            Here&apos;s what&apos;s happening with your enforcement cases today.
           </p>
         </div>
         <Link to="/cases">
