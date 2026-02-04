@@ -457,6 +457,21 @@ const LocationTab = ({ caseData, canEdit, onLocationUpdate }) => {
           </div>
         </div>
 
+        {/* Lookup Address Button (in edit mode with coordinates) */}
+        {editMode && hasLocation && (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => fetchAddressFromCoords(location.latitude, location.longitude)}
+              className="text-sm"
+              data-testid="lookup-address-btn"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              Lookup Address from Coordinates
+            </Button>
+          </div>
+        )}
+
         {/* W3W Search (only in edit mode and when W3W is enabled) */}
         {editMode && w3wEnabled && (
           <div className="p-4 bg-blue-50 rounded-lg space-y-3">
