@@ -234,7 +234,7 @@ const MapView = () => {
             <div className="map-container" data-testid="map-container">
               <MapContainer
                 center={defaultCenter}
-                zoom={10}
+                zoom={defaultZoom}
                 style={{ height: '500px', width: '100%' }}
               >
                 <TileLayer
