@@ -26,11 +26,14 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentCases, setRecentCases] = useState([]);
+  const [myCases, setMyCases] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const isOfficer = user?.role === 'officer';
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [user]);
 
   const fetchDashboardData = async () => {
     try {
@@ -39,7 +42,15 @@ const Dashboard = () => {
         axios.get(`${API}/cases`)
       ]);
       setStats(statsRes.data);
-      setRecentCases(casesRes.data.slice(0, 5));
+      
+      // For officers, filter to show only their assigned cases
+      if (isOfficer && user?.id) {
+        const assignedCases = casesRes.data.filter(c => c.assigned_to === user.id);
+        setMyCases(assignedCases);
+        setRecentCases(assignedCases.slice(0, 5));
+      } else {
+        setRecentCases(casesRes.data.slice(0, 5));
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -50,7 +61,10 @@ const Dashboard = () => {
   const getCaseTypeIcon = (type) => {
     const icons = {
       fly_tipping: Trash2,
+      fly_tipping_private: Trash2,
+      fly_tipping_organised: Trash2,
       abandoned_vehicle: Car,
+      nuisance_vehicle: Car,
       littering: Cigarette,
       dog_fouling: Dog,
       pspo_dog_control: Shield
@@ -61,12 +75,18 @@ const Dashboard = () => {
   const getCaseTypeLabel = (type) => {
     const labels = {
       fly_tipping: 'Fly Tipping',
+      fly_tipping_private: 'Fly Tipping (Private)',
+      fly_tipping_organised: 'Fly Tipping (Organised)',
       abandoned_vehicle: 'Abandoned Vehicle',
+      nuisance_vehicle: 'Nuisance Vehicle',
       littering: 'Littering',
       dog_fouling: 'Dog Fouling',
-      pspo_dog_control: 'PSPO Dog Control'
+      pspo_dog_control: 'PSPO Dog Control',
+      untidy_land: 'Untidy Land',
+      high_hedges: 'High Hedges',
+      waste_carrier_licensing: 'Waste Carrier'
     };
-    return labels[type] || type;
+    return labels[type] || type?.replace(/_/g, ' ');
   };
 
   const getStatusBadge = (status) => {
