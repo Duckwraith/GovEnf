@@ -43,16 +43,16 @@ const Layout = () => {
     logo_base64: null
   });
 
-  const fetchSystemSettings = async () => {
+  const fetchSystemSettings = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/settings`);
       setSystemSettings(response.data);
     } catch (error) {
       console.error('Failed to fetch system settings:', error);
     }
-  };
+  }, []);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/notifications`);
       setNotifications(response.data);
@@ -60,14 +60,14 @@ const Layout = () => {
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
     fetchSystemSettings();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications, fetchSystemSettings]);
 
   const markAsRead = async (notificationId) => {
     try {
