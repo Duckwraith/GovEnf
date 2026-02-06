@@ -2,6 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { MobileViewProvider } from "@/contexts/MobileViewContext";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Cases from "@/pages/Cases";
