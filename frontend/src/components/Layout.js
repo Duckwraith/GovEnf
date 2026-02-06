@@ -120,15 +120,17 @@ const Layout = () => {
   };
 
   return (
-    <div className="app-layout">
-      {/* Mobile Menu Button */}
-      <button
-        data-testid="mobile-menu-btn"
-        className="fixed top-4 left-4 z-50 md:hidden p-2 bg-white rounded-sm shadow-sm border"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+    <div className={`app-layout ${mobileViewEnabled ? 'mobile-active' : ''}`}>
+      {/* Mobile Menu Button - only show when NOT in mobile view mode */}
+      {!mobileViewEnabled && (
+        <button
+          data-testid="mobile-menu-btn"
+          className="fixed top-4 left-4 z-50 md:hidden p-2 bg-white rounded-sm shadow-sm border"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      )}
 
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} data-testid="sidebar">
