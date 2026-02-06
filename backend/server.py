@@ -1676,6 +1676,159 @@ async def export_cases_csv(
         "filename": f"cases_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
     }
 
+# FPN Reports
+@api_router.get("/stats/fpn")
+async def get_fpn_stats(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get FPN statistics and summary"""
+    if current_user["role"] not in [UserRole.MANAGER.value, UserRole.SUPERVISOR.value]:
+        raise HTTPException(status_code=403, detail="Only managers and supervisors can view FPN reports")
+    
+    # Build query for date range
+    query = {"fpn_issued": True}
+    if start_date:
+        query["fpn_details.date_issued"] = {"$gte": start_date}
+    if end_date:
+        if "fpn_details.date_issued" in query:
+            query["fpn_details.date_issued"]["$lte"] = end_date
+        else:
+            query["fpn_details.date_issued"] = {"$lte": end_date}
+    
+    # Get all FPN cases
+    fpn_cases = await db.cases.find(query, {"_id": 0}).to_list(10000)
+    
+    # Calculate statistics
+    total_fpns = len(fpn_cases)
+    paid_fpns = [c for c in fpn_cases if c.get("fpn_details", {}).get("paid", False)]
+    outstanding_fpns = [c for c in fpn_cases if not c.get("fpn_details", {}).get("paid", False)]
+    
+    total_amount_due = sum(
+        c.get("fpn_details", {}).get("fpn_amount", 0) or 0 
+        for c in fpn_cases
+    )
+    total_collected = sum(
+        c.get("fpn_details", {}).get("fpn_amount", 0) or 0 
+        for c in paid_fpns
+    )
+    total_outstanding = sum(
+        c.get("fpn_details", {}).get("fpn_amount", 0) or 0 
+        for c in outstanding_fpns
+    )
+    
+    # Payment rate
+    payment_rate = (len(paid_fpns) / total_fpns * 100) if total_fpns > 0 else 0
+    
+    # FPNs by case type
+    by_case_type = {}
+    for c in fpn_cases:
+        ct = c.get("case_type", "unknown")
+        if ct not in by_case_type:
+            by_case_type[ct] = {"count": 0, "amount": 0, "paid": 0}
+        by_case_type[ct]["count"] += 1
+        by_case_type[ct]["amount"] += c.get("fpn_details", {}).get("fpn_amount", 0) or 0
+        if c.get("fpn_details", {}).get("paid", False):
+            by_case_type[ct]["paid"] += 1
+    
+    # Monthly breakdown (last 12 months)
+    from collections import defaultdict
+    monthly_stats = defaultdict(lambda: {"issued": 0, "paid": 0, "amount": 0})
+    for c in fpn_cases:
+        date_issued = c.get("fpn_details", {}).get("date_issued")
+        if date_issued:
+            month_key = date_issued[:7]  # YYYY-MM
+            monthly_stats[month_key]["issued"] += 1
+            monthly_stats[month_key]["amount"] += c.get("fpn_details", {}).get("fpn_amount", 0) or 0
+            if c.get("fpn_details", {}).get("paid", False):
+                monthly_stats[month_key]["paid"] += 1
+    
+    return {
+        "summary": {
+            "total_fpns": total_fpns,
+            "paid_fpns": len(paid_fpns),
+            "outstanding_fpns": len(outstanding_fpns),
+            "total_amount_due": total_amount_due,
+            "total_collected": total_collected,
+            "total_outstanding": total_outstanding,
+            "payment_rate": round(payment_rate, 1)
+        },
+        "by_case_type": by_case_type,
+        "monthly_breakdown": dict(monthly_stats)
+    }
+
+@api_router.get("/stats/fpn/outstanding")
+async def get_outstanding_fpns(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get list of outstanding (unpaid) FPNs for follow-up"""
+    if current_user["role"] not in [UserRole.MANAGER.value, UserRole.SUPERVISOR.value]:
+        raise HTTPException(status_code=403, detail="Only managers and supervisors can view FPN reports")
+    
+    # Get outstanding FPNs sorted by date issued (oldest first)
+    outstanding = await db.cases.find(
+        {"fpn_issued": True, "fpn_details.paid": {"$ne": True}},
+        {"_id": 0}
+    ).sort("fpn_details.date_issued", 1).to_list(1000)
+    
+    # Calculate days outstanding for each
+    today = datetime.now(timezone.utc).date()
+    for case in outstanding:
+        date_issued = case.get("fpn_details", {}).get("date_issued")
+        if date_issued:
+            try:
+                issued_date = datetime.strptime(date_issued, "%Y-%m-%d").date()
+                case["days_outstanding"] = (today - issued_date).days
+            except:
+                case["days_outstanding"] = None
+        else:
+            case["days_outstanding"] = None
+    
+    return outstanding
+
+@api_router.get("/stats/fpn/export-csv")
+async def export_fpn_csv(
+    current_user: dict = Depends(get_current_user)
+):
+    """Export FPN data to CSV"""
+    if current_user["role"] != UserRole.MANAGER.value:
+        raise HTTPException(status_code=403, detail="Only managers can export data")
+    
+    fpn_cases = await db.cases.find({"fpn_issued": True}, {"_id": 0}).to_list(10000)
+    
+    import csv
+    import io
+    
+    output = io.StringIO()
+    fieldnames = [
+        "reference_number", "case_type", "status", "fpn_ref", "date_issued", 
+        "fpn_amount", "paid", "date_paid", "pay_reference", "assigned_to_name"
+    ]
+    writer = csv.DictWriter(output, fieldnames=fieldnames, extrasaction='ignore')
+    writer.writeheader()
+    
+    for case in fpn_cases:
+        fpn_details = case.get("fpn_details", {}) or {}
+        row = {
+            "reference_number": case.get("reference_number"),
+            "case_type": case.get("case_type"),
+            "status": case.get("status"),
+            "fpn_ref": fpn_details.get("fpn_ref"),
+            "date_issued": fpn_details.get("date_issued"),
+            "fpn_amount": fpn_details.get("fpn_amount"),
+            "paid": "Yes" if fpn_details.get("paid") else "No",
+            "date_paid": fpn_details.get("date_paid"),
+            "pay_reference": fpn_details.get("pay_reference"),
+            "assigned_to_name": case.get("assigned_to_name")
+        }
+        writer.writerow(row)
+    
+    return {
+        "csv_data": output.getvalue(),
+        "filename": f"fpn_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    }
+
 # Initialize default admin user on startup
 @app.on_event("startup")
 async def startup_event():
