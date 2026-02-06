@@ -298,3 +298,158 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Mobile View Styles - Applied when body has 'mobile-view' class */
+body.mobile-view .app-layout {
+    flex-direction: column;
+}
+
+body.mobile-view .main-content {
+    margin-left: 0;
+    padding-bottom: 70px; /* Space for bottom nav */
+}
+
+body.mobile-view .sidebar {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
+    height: auto;
+    transform: none;
+    border-right: none;
+    border-top: 1px solid #E5E7EB;
+    flex-direction: row;
+    z-index: 50;
+}
+
+body.mobile-view .sidebar-header,
+body.mobile-view .sidebar-footer {
+    display: none;
+}
+
+body.mobile-view .sidebar-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0.5rem 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    width: 100%;
+}
+
+body.mobile-view .sidebar-link {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.25rem;
+    font-size: 0.625rem;
+    min-width: auto;
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+body.mobile-view .sidebar-link svg {
+    width: 20px;
+    height: 20px;
+}
+
+body.mobile-view .sidebar-link span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+}
+
+/* Hide mobile menu button when mobile view is active */
+body.mobile-view [data-testid="mobile-menu-btn"] {
+    display: none;
+}
+
+/* Mobile view responsive adjustments */
+body.mobile-view .stat-card {
+    padding: 1rem;
+}
+
+body.mobile-view .stat-card-value {
+    font-size: 1.5rem;
+}
+
+body.mobile-view .data-table th,
+body.mobile-view .data-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+body.mobile-view .map-container {
+    height: 300px;
+}
+
+/* Mobile view cards and forms */
+body.mobile-view .p-6 {
+    padding: 1rem;
+}
+
+body.mobile-view .md\:p-8 {
+    padding: 1rem;
+}
+
+/* Compact header in mobile view */
+body.mobile-view header.sticky {
+    padding: 0.75rem 1rem;
+}
+
+body.mobile-view header h2 {
+    font-size: 1rem;
+}
+
+/* Evidence grid adjustments for mobile */
+body.mobile-view .evidence-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+/* Button sizing for mobile */
+body.mobile-view .btn-primary,
+body.mobile-view .btn-secondary {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Touch-friendly form elements */
+body.mobile-view input,
+body.mobile-view select,
+body.mobile-view textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 44px; /* Apple's recommended touch target size */
+}
+
+/* Case detail tabs - stack on mobile view */
+body.mobile-view [role="tablist"] {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+body.mobile-view [role="tab"] {
+    flex: 1 1 auto;
+    min-width: calc(50% - 0.25rem);
+    justify-content: center;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Hide non-essential elements in mobile view */
+body.mobile-view .hidden-mobile {
+    display: none !important;
+}
+
+/* Show mobile-only elements */
+.show-mobile {
+    display: none !important;
+}
+
+body.mobile-view .show-mobile {
+    display: flex !important;
+}
