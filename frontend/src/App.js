@@ -41,52 +41,54 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/report" element={<PublicReport />} />
-          
-          {/* Protected routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="cases" element={<Cases />} />
-            <Route path="cases/:caseId" element={<CaseDetail />} />
-            <Route path="map" element={<MapView />} />
-            <Route path="users" element={
-              <ProtectedRoute allowedRoles={["manager"]}>
-                <Users />
+      <MobileViewProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/report" element={<PublicReport />} />
+            
+            {/* Protected routes */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
               </ProtectedRoute>
-            } />
-            <Route path="teams" element={
-              <ProtectedRoute allowedRoles={["manager"]}>
-                <Teams />
-              </ProtectedRoute>
-            } />
-            <Route path="settings" element={
-              <ProtectedRoute allowedRoles={["manager"]}>
-                <AdminSettings />
-              </ProtectedRoute>
-            } />
-            <Route path="reports" element={
-              <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
-                <Reports />
-              </ProtectedRoute>
-            } />
-            <Route path="fpn-reports" element={
-              <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
-                <FPNReports />
-              </ProtectedRoute>
-            } />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-      <Toaster position="top-right" richColors />
+            }>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="cases" element={<Cases />} />
+              <Route path="cases/:caseId" element={<CaseDetail />} />
+              <Route path="map" element={<MapView />} />
+              <Route path="users" element={
+                <ProtectedRoute allowedRoles={["manager"]}>
+                  <Users />
+                </ProtectedRoute>
+              } />
+              <Route path="teams" element={
+                <ProtectedRoute allowedRoles={["manager"]}>
+                  <Teams />
+                </ProtectedRoute>
+              } />
+              <Route path="settings" element={
+                <ProtectedRoute allowedRoles={["manager"]}>
+                  <AdminSettings />
+                </ProtectedRoute>
+              } />
+              <Route path="reports" element={
+                <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
+                  <Reports />
+                </ProtectedRoute>
+              } />
+              <Route path="fpn-reports" element={
+                <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
+                  <FPNReports />
+                </ProtectedRoute>
+              } />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+        <Toaster position="top-right" richColors />
+      </MobileViewProvider>
     </AuthProvider>
   );
 }
