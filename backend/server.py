@@ -1258,6 +1258,18 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
         update_data["type_specific_fields"] = updates.type_specific_fields.model_dump()
         audit_details.append("Case-specific details updated")
     
+    # Handle FPN updates
+    if updates.fpn_issued is not None:
+        update_data["fpn_issued"] = updates.fpn_issued
+        if updates.fpn_issued:
+            audit_details.append("Fixed Penalty Notice issued")
+        else:
+            audit_details.append("Fixed Penalty Notice removed")
+    
+    if updates.fpn_details:
+        update_data["fpn_details"] = updates.fpn_details.model_dump()
+        audit_details.append("FPN details updated")
+    
     # Handle description update
     if updates.description and updates.description != case.get("description"):
         audit_details.append(f"Description updated")
