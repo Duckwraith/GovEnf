@@ -491,6 +491,15 @@ const CaseDetail = () => {
             <MapPin className="w-4 h-4 mr-2" />
             Location
           </TabsTrigger>
+          {caseData.fpn_issued && (
+            <TabsTrigger value="fpn" data-testid="fpn-tab">
+              <Receipt className="w-4 h-4 mr-2" />
+              Fixed Penalty
+              {caseData.fpn_details?.paid && (
+                <CheckCircle className="w-3 h-3 ml-1 text-green-600" />
+              )}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="notes" data-testid="notes-tab">
             <MessageSquare className="w-4 h-4 mr-2" />
             Notes ({notes.length})
