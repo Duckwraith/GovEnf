@@ -7,131 +7,120 @@ Build an app for an enforcement team in a United Kingdom local government author
 - **Frontend**: React with Tailwind CSS, Shadcn UI components, React Leaflet
 - **Backend**: FastAPI with MongoDB, httpx for external APIs
 - **Authentication**: JWT-based custom auth (no social login)
-- **External APIs**: What3Words (optional, graceful degradation), OpenStreetMap Nominatim (reverse geocoding)
+- **External APIs**: What3Words (optional), OpenStreetMap Nominatim (reverse geocoding)
 
 ## User Personas
-1. **Officers**: View/update assigned cases, upload evidence, add notes, self-assign from unassigned pool, close cases with reason. Dashboard shows "My Cases" only
-2. **Supervisors**: Assign/reassign cases, view all cases, close cases, reopen cases
-3. **Managers/Admin**: Reporting, configuration, user management, team management, CSV export
-
-## Core Requirements
-- Role-based access control (Officer, Supervisor, Manager)
-- Team-based case visibility
-- Case management with workflow (New → Assigned → Investigating → Closed)
-- Evidence upload (photos, documents)
-- Case notes and audit timeline
-- Public reporting form (no login required)
-- In-app notifications
-- Map view with location data and admin-configurable defaults
-- What3Words integration (optional)
-- Fixed Penalty Notice (FPN) tracking
-- Basic statistics and CSV export
+1. **Officers**: View/update assigned cases, upload evidence, add notes, self-assign, close cases
+2. **Supervisors**: Assign/reassign cases, view all cases, close/reopen cases, view FPN reports
+3. **Managers/Admin**: Full system access, configuration, user/team management, FPN reports, CSV exports
 
 ## What's Been Implemented
 
-### Phase 1-3 (Previous Sessions)
-- Complete authentication system with JWT
-- Role-based access control
-- Case CRUD operations with filtering
-- Evidence upload and management
-- Case notes functionality
-- Audit trail logging
-- Public report submission
-- Notification system
-- Dashboard with statistics
-- Map view with Leaflet
-- User management (admin)
-- CSV export functionality
-- Case-type specific custom fields
-- Location Tab with interactive map
-- System Configuration (Admin Settings)
-- Teams & Team-based visibility
-- New case types (Untidy Land, High Hedges, Waste Carrier, Nuisance Vehicles, etc.)
+### Core Features (Phases 1-3)
+- JWT authentication with role-based access
+- Case CRUD with workflow (New → Assigned → Investigating → Closed)
+- Evidence upload, notes, audit logging
+- Public reporting form
+- Notifications, Dashboard, Map view
+- Teams & team-based visibility
+- Multiple case types (Fly Tipping, Abandoned Vehicle, Nuisance Vehicle, Untidy Land, etc.)
 - Case closure with mandatory reason/note
-- W3W integration (with graceful fallback)
+- What3Words integration
 
-### Phase 4 (2026-02-03)
-- **Officer "My Cases" Dashboard**:
-  - Officers see only their assigned cases
-  - Personalized stats (My Cases, Investigating, Closed by Me, New Assigned)
+### Phase 4 - Latest Features
+- **Officer "My Cases" Dashboard** - Personalized view for officers
+- **Dynamic Branding** - Logo/title from Admin Settings on login page and sidebar
+- **Map Defaults from Admin** - Configurable center and zoom
+- **Location Auto-fill** - Reverse geocoding from coordinates
 
-- **Dynamic Branding**:
-  - Sidebar logo/title from Admin Settings
-  - Login page shows configured logo, app title, organization name
-  - Public settings endpoint (`/api/settings/public`)
-
-- **Map View Admin Defaults**:
-  - Uses admin-configured center and zoom
-  - No longer defaults to London
-
-- **Location Auto-fill**:
-  - Reverse geocoding via OpenStreetMap Nominatim
-  - Auto-fills address/postcode when coordinates change
-  - "Lookup Address from Coordinates" button
-
-- **Fixed Penalty Notice (FPN) Feature**:
+- **Fixed Penalty Notice (FPN) Tracking**:
   - "Fixed Penalty Issued" checkbox on all cases
-  - When checked, "Fixed Penalty" tab appears
-  - FPN Tab includes:
-    - FPN Reference (external paper-based ref)
+  - "Fixed Penalty" tab with full details:
+    - FPN Reference (external paper-based)
     - Date Issued
     - FPN Amount (£)
     - Paid checkbox
-    - Date Paid (shown when paid)
+    - Date Paid
     - Payment Reference
-  - Status summary shows Outstanding/Paid with amount
-  - All FPN changes audit logged
+  - Status summary (Outstanding/Paid)
+  - All changes audit logged
 
-## Database Schema
-- **users**: id, email, name, role, teams[], cross_team_access, is_active
-- **cases**: id, reference_number, case_type, status, description, location, assigned_to, owning_team, closure_reason, final_note, type_specific_fields, **fpn_issued**, **fpn_details**
-- **teams**: id, name, team_type, description, is_active
-- **system_settings**: Singleton document for global configuration
-- **audit_logs**: case_id, user_id, action, timestamp, details
-- **notes**: case_id, content, created_by
-- **evidence**: case_id, filename, file_data, file_type
-- **notifications**: user_id, title, message, read
+- **FPN Reports Page** (NEW):
+  - Summary statistics:
+    - Total FPNs Issued
+    - Paid FPNs (count + amount)
+    - Outstanding FPNs (count + amount)
+    - Payment Rate (%)
+  - Financial summary banner
+  - Date range filtering
+  - **Outstanding FPNs tab**:
+    - Sorted by date issued (oldest first)
+    - Days outstanding with urgency badges
+    - Direct link to case
+  - **By Case Type tab**:
+    - Breakdown of FPNs by case type
+    - Count, paid, payment rate, total amount
+  - CSV Export functionality
+  - Available to Managers and Supervisors
 
 ## API Endpoints
-- Auth: POST /api/auth/login, /api/auth/register, GET /api/auth/me
-- Cases: GET/POST /api/cases, GET/PUT /api/cases/{id}
-- Teams: GET/POST /api/teams, PUT/DELETE /api/teams/{id}
-- Settings: GET/PUT /api/settings, GET /api/settings/public
-- W3W: GET /api/w3w/status, POST /api/w3w/convert
-- Geocode: GET /api/geocode/reverse
-- Notes: GET/POST /api/cases/{id}/notes
-- Evidence: GET/POST /api/cases/{id}/evidence
-- Users: GET /api/users, PUT /api/users/{id}
-- Reports: GET /api/reports, /api/reports/csv
-- Public: POST /api/public/report
+
+### FPN Report Endpoints (NEW)
+- `GET /api/stats/fpn` - FPN statistics with date filtering
+- `GET /api/stats/fpn/outstanding` - List of outstanding FPNs
+- `GET /api/stats/fpn/export-csv` - Export FPN data to CSV
+
+### Other Key Endpoints
+- Auth: `/api/auth/login`, `/api/auth/register`, `/api/auth/me`
+- Cases: `/api/cases`, `/api/cases/{id}`
+- Teams: `/api/teams`
+- Settings: `/api/settings`, `/api/settings/public`
+- W3W: `/api/w3w/status`, `/api/w3w/convert`
+- Geocode: `/api/geocode/reverse`
+
+## Database Schema
+
+### Case (updated)
+```
+{
+  id, reference_number, case_type, status, description, location,
+  assigned_to, owning_team, closure_reason, final_note,
+  type_specific_fields,
+  fpn_issued: boolean,        // NEW
+  fpn_details: {              // NEW
+    fpn_ref: string,
+    date_issued: date,
+    fpn_amount: float,
+    paid: boolean,
+    date_paid: date,
+    pay_reference: string
+  }
+}
+```
 
 ## Prioritized Backlog
 
 ### P0 (Completed)
 - ✅ System Configuration & Dynamic Branding
 - ✅ Teams & Team-based visibility
-- ✅ New case types
+- ✅ Case types & custom fields
 - ✅ Case closure with mandatory reason
 - ✅ W3W integration
 - ✅ Officer "My Cases" dashboard
-- ✅ Login page dynamic branding
-- ✅ Map view uses admin defaults
-- ✅ Location auto-fill from coordinates
-- ✅ Fixed Penalty Notice (FPN) tracking
+- ✅ Dynamic login page branding
+- ✅ Map view admin defaults
+- ✅ Location auto-fill
+- ✅ Fixed Penalty Notice tracking
+- ✅ FPN Reports with statistics & outstanding list
 
 ### P1 (Next)
-- Advanced search by case-type specific fields (e.g., vehicle registration)
-- Backend mandatory field validation for case creation
-- FPN payment reports/statistics
+- Advanced search by case-type fields (vehicle registration)
+- Backend mandatory field validation
+- FPN payment reminders/notifications
 
 ### P2 (Future)
 - Advanced reporting dashboard with charts
 - GDPR case retention automation
-- Email notifications (SendGrid integration)
+- Email notifications (SendGrid)
 - Mobile-optimized views
-- Offline capability for officers
-- FPN payment reminders
-
-## Known Limitations
-- W3W API may return 402 (Payment Required) - feature works gracefully when unavailable
-- Backend is a monolithic server.py - consider refactoring for larger deployments
+- Offline capability
