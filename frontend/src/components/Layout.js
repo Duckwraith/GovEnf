@@ -206,10 +206,28 @@ const Layout = () => {
       <main className="main-content">
         {/* Top Bar */}
         <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
-          <div className="md:hidden w-10" /> {/* Spacer for mobile menu button */}
-          <h2 className="text-lg font-semibold text-[#0B0C0C] hidden md:block">
-            {filteredNavItems.find(item => location.pathname.startsWith(item.path))?.label || 'GovEnforce'}
-          </h2>
+          {/* Mobile view: Show logo and title */}
+          {mobileViewEnabled ? (
+            <div className="flex items-center gap-2">
+              {systemSettings.logo_base64 ? (
+                <img 
+                  src={systemSettings.logo_base64} 
+                  alt="Logo" 
+                  className="w-8 h-8 object-contain"
+                />
+              ) : (
+                <Shield className="w-6 h-6 text-[#005EA5]" />
+              )}
+              <span className="font-semibold text-[#0B0C0C] text-sm">{systemSettings.app_title || 'GovEnforce'}</span>
+            </div>
+          ) : (
+            <>
+              <div className="md:hidden w-10" /> {/* Spacer for mobile menu button */}
+              <h2 className="text-lg font-semibold text-[#0B0C0C] hidden md:block">
+                {filteredNavItems.find(item => location.pathname.startsWith(item.path))?.label || 'GovEnforce'}
+              </h2>
+            </>
+          )}
           
           <div className="flex items-center gap-4">
             {/* Mobile View Toggle */}
