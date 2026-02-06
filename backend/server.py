@@ -374,6 +374,15 @@ class CaseCreate(BaseModel):
     reporting_source: Optional[ReportingSource] = ReportingSource.OFFICER
     owning_team: Optional[str] = None  # Team ID
 
+# Fixed Penalty Notice Model
+class FixedPenaltyNotice(BaseModel):
+    fpn_ref: Optional[str] = None
+    date_issued: Optional[str] = None
+    fpn_amount: Optional[float] = None
+    paid: bool = False
+    date_paid: Optional[str] = None
+    pay_reference: Optional[str] = None
+
 class CaseUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[CaseStatus] = None
@@ -383,15 +392,8 @@ class CaseUpdate(BaseModel):
     owning_team: Optional[str] = None  # Can reassign team
     closure_reason: Optional[str] = None  # Required when closing
     final_note: Optional[str] = None  # Required when closing
-
-# Fixed Penalty Notice Model
-class FixedPenaltyNotice(BaseModel):
-    fpn_ref: Optional[str] = None
-    date_issued: Optional[str] = None
-    fpn_amount: Optional[float] = None
-    paid: bool = False
-    date_paid: Optional[str] = None
-    pay_reference: Optional[str] = None
+    fpn_issued: Optional[bool] = None  # Fixed Penalty Issued checkbox
+    fpn_details: Optional[FixedPenaltyNotice] = None  # FPN details
 
 class Case(BaseModel):
     model_config = ConfigDict(extra="ignore")
