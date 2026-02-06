@@ -10,6 +10,7 @@ import {
   Users2,
   Settings,
   BarChart3,
+  Receipt,
   Bell,
   LogOut,
   Menu,
