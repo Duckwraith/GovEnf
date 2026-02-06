@@ -11,6 +11,7 @@ import Users from "@/pages/Users";
 import Teams from "@/pages/Teams";
 import AdminSettings from "@/pages/AdminSettings";
 import Reports from "@/pages/Reports";
+import FPNReports from "@/pages/FPNReports";
 import PublicReport from "@/pages/PublicReport";
 import Layout from "@/components/Layout";
 
@@ -74,6 +75,11 @@ function App() {
             <Route path="reports" element={
               <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
                 <Reports />
+              </ProtectedRoute>
+            } />
+            <Route path="fpn-reports" element={
+              <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
+                <FPNReports />
               </ProtectedRoute>
             } />
           </Route>
