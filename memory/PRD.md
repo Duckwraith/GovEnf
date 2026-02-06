@@ -10,7 +10,7 @@ Build an app for an enforcement team in a United Kingdom local government author
 - **External APIs**: What3Words (optional, graceful degradation), OpenStreetMap Nominatim (reverse geocoding)
 
 ## User Personas
-1. **Officers**: View/update assigned cases, upload evidence, add notes, self-assign from unassigned pool, close cases with reason. **Dashboard shows "My Cases" only**
+1. **Officers**: View/update assigned cases, upload evidence, add notes, self-assign from unassigned pool, close cases with reason. Dashboard shows "My Cases" only
 2. **Supervisors**: Assign/reassign cases, view all cases, close cases, reopen cases
 3. **Managers/Admin**: Reporting, configuration, user management, team management, CSV export
 
@@ -24,11 +24,12 @@ Build an app for an enforcement team in a United Kingdom local government author
 - In-app notifications
 - Map view with location data and admin-configurable defaults
 - What3Words integration (optional)
+- Fixed Penalty Notice (FPN) tracking
 - Basic statistics and CSV export
 
 ## What's Been Implemented
 
-### Phase 1 (2026-02-02)
+### Phase 1-3 (Previous Sessions)
 - Complete authentication system with JWT
 - Role-based access control
 - Case CRUD operations with filtering
@@ -41,70 +42,51 @@ Build an app for an enforcement team in a United Kingdom local government author
 - Map view with Leaflet
 - User management (admin)
 - CSV export functionality
-- Default demo users on startup
-
-### Phase 2 (2026-02-02)
-- Case-type specific custom fields for all original types
-- Conditional field rendering in all forms
-- Details tab in case detail page
+- Case-type specific custom fields
 - Location Tab with interactive map
-- Editable coordinates with drag-drop
+- System Configuration (Admin Settings)
+- Teams & Team-based visibility
+- New case types (Untidy Land, High Hedges, Waste Carrier, Nuisance Vehicles, etc.)
+- Case closure with mandatory reason/note
+- W3W integration (with graceful fallback)
 
-### Phase 3 (2026-02-03)
-- **System Configuration (Admin Settings)**:
-  - Configurable app title and organization name
-  - Default map center (latitude, longitude) and zoom level
-  - What3Words feature toggle
-  - Public reporting toggle
-  - Case retention period configuration
-  - Logo upload
+### Phase 4 (2026-02-03)
+- **Officer "My Cases" Dashboard**:
+  - Officers see only their assigned cases
+  - Personalized stats (My Cases, Investigating, Closed by Me, New Assigned)
 
-- **Teams & Visibility**:
-  - Team management CRUD (create, update, delete)
-  - Team types: Enforcement, Environmental Crimes, Waste Management
-  - User-to-team assignment (multiple teams per user)
-  - Cross-team access for supervisors
-  - Case type → Team visibility mapping
-
-- **New Case Types**:
-  - Fly Tipping (Private Land, Organised Crime)
-  - Untidy Land, High Hedges
-  - Waste Carrier / Licensing
-  - Nuisance Vehicle variants (General, On-Street Seller, Parking, ASB)
-  - Complex Environmental Offence
-
-- **Case Closure Enhancement**:
-  - All users must provide closure reason + final note when closing
-  - Only supervisors/managers can reopen closed cases
-
-- **Waste Management Clearance Outcome** (for fly-tipping cases)
-
-- **What3Words Integration** with graceful fallback
-
-### Phase 4 (2026-02-03) - Latest
-- **Officer Dashboard "My Cases"**:
-  - Officers see only their assigned cases on dashboard
-  - Stats show: My Cases, Investigating, Closed by Me, New Assigned
-  - Recent Cases section shows assigned cases only
-
-- **Dynamic Logo from Admin Settings**:
-  - Sidebar logo updates based on uploaded logo in Admin Settings
-  - App title and organization name from settings
+- **Dynamic Branding**:
+  - Sidebar logo/title from Admin Settings
+  - Login page shows configured logo, app title, organization name
+  - Public settings endpoint (`/api/settings/public`)
 
 - **Map View Admin Defaults**:
-  - Map view uses admin-configured default center and zoom
+  - Uses admin-configured center and zoom
   - No longer defaults to London
 
 - **Location Auto-fill**:
-  - Reverse geocoding endpoint using OpenStreetMap Nominatim
-  - Auto-fills address and postcode when map pin is moved
+  - Reverse geocoding via OpenStreetMap Nominatim
+  - Auto-fills address/postcode when coordinates change
   - "Lookup Address from Coordinates" button
+
+- **Fixed Penalty Notice (FPN) Feature**:
+  - "Fixed Penalty Issued" checkbox on all cases
+  - When checked, "Fixed Penalty" tab appears
+  - FPN Tab includes:
+    - FPN Reference (external paper-based ref)
+    - Date Issued
+    - FPN Amount (£)
+    - Paid checkbox
+    - Date Paid (shown when paid)
+    - Payment Reference
+  - Status summary shows Outstanding/Paid with amount
+  - All FPN changes audit logged
 
 ## Database Schema
 - **users**: id, email, name, role, teams[], cross_team_access, is_active
-- **cases**: id, reference_number, case_type, status, description, location, assigned_to, owning_team, closure_reason, final_note, type_specific_fields
+- **cases**: id, reference_number, case_type, status, description, location, assigned_to, owning_team, closure_reason, final_note, type_specific_fields, **fpn_issued**, **fpn_details**
 - **teams**: id, name, team_type, description, is_active
-- **system_settings**: Singleton document for global configuration (app_title, logo_base64, map_settings, etc.)
+- **system_settings**: Singleton document for global configuration
 - **audit_logs**: case_id, user_id, action, timestamp, details
 - **notes**: case_id, content, created_by
 - **evidence**: case_id, filename, file_data, file_type
@@ -114,9 +96,9 @@ Build an app for an enforcement team in a United Kingdom local government author
 - Auth: POST /api/auth/login, /api/auth/register, GET /api/auth/me
 - Cases: GET/POST /api/cases, GET/PUT /api/cases/{id}
 - Teams: GET/POST /api/teams, PUT/DELETE /api/teams/{id}
-- Settings: GET/PUT /api/settings
+- Settings: GET/PUT /api/settings, GET /api/settings/public
 - W3W: GET /api/w3w/status, POST /api/w3w/convert
-- Geocode: GET /api/geocode/reverse (lat, lng → address)
+- Geocode: GET /api/geocode/reverse
 - Notes: GET/POST /api/cases/{id}/notes
 - Evidence: GET/POST /api/cases/{id}/evidence
 - Users: GET /api/users, PUT /api/users/{id}
@@ -126,19 +108,21 @@ Build an app for an enforcement team in a United Kingdom local government author
 ## Prioritized Backlog
 
 ### P0 (Completed)
-- ✅ System Configuration
+- ✅ System Configuration & Dynamic Branding
 - ✅ Teams & Team-based visibility
 - ✅ New case types
 - ✅ Case closure with mandatory reason
-- ✅ W3W integration (with graceful fallback)
+- ✅ W3W integration
 - ✅ Officer "My Cases" dashboard
-- ✅ Dynamic logo from admin settings
+- ✅ Login page dynamic branding
 - ✅ Map view uses admin defaults
 - ✅ Location auto-fill from coordinates
+- ✅ Fixed Penalty Notice (FPN) tracking
 
 ### P1 (Next)
 - Advanced search by case-type specific fields (e.g., vehicle registration)
 - Backend mandatory field validation for case creation
+- FPN payment reports/statistics
 
 ### P2 (Future)
 - Advanced reporting dashboard with charts
@@ -146,6 +130,7 @@ Build an app for an enforcement team in a United Kingdom local government author
 - Email notifications (SendGrid integration)
 - Mobile-optimized views
 - Offline capability for officers
+- FPN payment reminders
 
 ## Known Limitations
 - W3W API may return 402 (Payment Required) - feature works gracefully when unavailable
