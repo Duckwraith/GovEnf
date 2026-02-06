@@ -570,6 +570,17 @@ const CaseDetail = () => {
           />
         </TabsContent>
 
+        {/* FPN Tab */}
+        {caseData.fpn_issued && (
+          <TabsContent value="fpn">
+            <FPNTab
+              caseData={caseData}
+              canEdit={canEditCase()}
+              onUpdate={() => fetchCaseData()}
+            />
+          </TabsContent>
+        )}
+
         {/* Notes Tab */}
         <TabsContent value="notes">
           <Card className="border">
