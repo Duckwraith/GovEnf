@@ -45,7 +45,7 @@ Build an app for an enforcement team in a United Kingdom local government author
   - Status summary (Outstanding/Paid)
   - All changes audit logged
 
-- **FPN Reports Page** (NEW):
+- **FPN Reports Page**:
   - Summary statistics:
     - Total FPNs Issued
     - Paid FPNs (count + amount)
@@ -62,6 +62,28 @@ Build an app for an enforcement team in a United Kingdom local government author
     - Count, paid, payment rate, total amount
   - CSV Export functionality
   - Available to Managers and Supervisors
+
+### Phase 5 - Mobile View & Navigation (Feb 2026)
+- **Mobile View Toggle**:
+  - Toggle switch in header (desktop view: hidden sm:flex)
+  - Toggle in user dropdown for smaller screens
+  - Monitor/Smartphone icons with switch
+  - State persisted to localStorage
+  - Adds/removes `mobile-view` class on body
+
+- **Mobile View Layout**:
+  - Sidebar transforms to bottom navigation bar
+  - Compact header with logo and branding
+  - Touch-friendly form elements (min-height: 44px)
+  - Responsive stat cards and tables
+  - Compact evidence grid
+
+- **Get Directions Button**:
+  - Green button below location map
+  - Only visible when case has coordinates
+  - Hidden in edit mode
+  - Opens Google Maps directions in new tab
+  - URL format: `https://www.google.com/maps/dir/?api=1&destination={lat},{lng}`
 
 ## API Endpoints
 
