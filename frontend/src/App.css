@@ -457,8 +457,12 @@ body.mobile-view textarea {
 
 /* Case detail tabs - stack on mobile view */
 body.mobile-view [role="tablist"] {
+    display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
+    height: auto !important;
+    min-height: auto;
+    padding: 0.5rem;
 }
 
 body.mobile-view [role="tab"] {
@@ -467,6 +471,18 @@ body.mobile-view [role="tab"] {
     justify-content: center;
     padding: 0.5rem;
     font-size: 0.75rem;
+    height: auto;
+    white-space: nowrap;
+}
+
+/* Ensure tab content doesn't overlap */
+body.mobile-view [data-state="active"][role="tabpanel"] {
+    margin-top: 0.5rem;
+}
+
+/* Fix TabsList in mobile view to not have fixed height */
+body.mobile-view .space-y-4 > [role="tablist"] {
+    height: auto !important;
 }
 
 /* Hide non-essential elements in mobile view */
