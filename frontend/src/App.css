@@ -459,36 +459,33 @@ body.mobile-view textarea {
 body.mobile-view [role="tablist"] {
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 0.25rem;
+    gap: 0.5rem !important;
     height: auto !important;
     min-height: auto !important;
-    padding: 0.5rem;
+    padding: 0.5rem !important;
+    align-items: stretch !important;
 }
 
 body.mobile-view [role="tab"] {
-    flex: 1 1 auto;
-    min-width: calc(50% - 0.25rem);
-    justify-content: center;
-    padding: 0.5rem;
-    font-size: 0.75rem;
-    height: auto;
+    flex: 1 1 calc(50% - 0.5rem) !important;
+    min-width: calc(50% - 0.5rem) !important;
+    max-width: calc(50% - 0.25rem);
+    justify-content: center !important;
+    padding: 0.625rem 0.5rem !important;
+    font-size: 0.75rem !important;
+    height: auto !important;
     white-space: nowrap;
 }
 
-/* Ensure tab content doesn't overlap */
-body.mobile-view [data-state="active"][role="tabpanel"] {
-    margin-top: 0.5rem;
+/* Last tab (if odd number) takes full width */
+body.mobile-view [role="tablist"] > [role="tab"]:last-child:nth-child(odd) {
+    flex: 1 1 100% !important;
+    max-width: 100%;
 }
 
-/* Fix TabsList in mobile view to not have fixed height */
-body.mobile-view .space-y-4 > [role="tablist"] {
-    height: auto !important;
-}
-
-/* Override h-9 class on TabsList in mobile view */
-body.mobile-view .h-9[role="tablist"],
-body.mobile-view [role="tablist"].h-9 {
-    height: auto !important;
+/* Ensure tab content has proper spacing below tabs */
+body.mobile-view [role="tabpanel"] {
+    margin-top: 1rem !important;
 }
 
 /* Hide non-essential elements in mobile view */
