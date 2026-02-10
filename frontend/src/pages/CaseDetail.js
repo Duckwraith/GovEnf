@@ -519,6 +519,10 @@ const CaseDetail = () => {
             <MapPin className="w-4 h-4 mr-2" />
             Location
           </TabsTrigger>
+          <TabsTrigger value="persons" data-testid="persons-tab">
+            <UserCircle className="w-4 h-4 mr-2" />
+            Persons
+          </TabsTrigger>
           {caseData.fpn_issued && (
             <TabsTrigger value="fpn" data-testid="fpn-tab">
               <Receipt className="w-4 h-4 mr-2" />
