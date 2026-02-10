@@ -457,11 +457,11 @@ body.mobile-view textarea {
 
 /* Case detail tabs - stack on mobile view */
 body.mobile-view [role="tablist"] {
-    display: flex;
-    flex-wrap: wrap;
+    display: flex !important;
+    flex-wrap: wrap !important;
     gap: 0.25rem;
     height: auto !important;
-    min-height: auto;
+    min-height: auto !important;
     padding: 0.5rem;
 }
 
@@ -482,6 +482,12 @@ body.mobile-view [data-state="active"][role="tabpanel"] {
 
 /* Fix TabsList in mobile view to not have fixed height */
 body.mobile-view .space-y-4 > [role="tablist"] {
+    height: auto !important;
+}
+
+/* Override h-9 class on TabsList in mobile view */
+body.mobile-view .h-9[role="tablist"],
+body.mobile-view [role="tablist"].h-9 {
     height: auto !important;
 }
 
