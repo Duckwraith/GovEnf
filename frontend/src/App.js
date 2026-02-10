@@ -10,6 +10,7 @@ import CaseDetail from "@/pages/CaseDetail";
 import MapView from "@/pages/MapView";
 import Users from "@/pages/Users";
 import Teams from "@/pages/Teams";
+import Persons from "@/pages/Persons";
 import AdminSettings from "@/pages/AdminSettings";
 import Reports from "@/pages/Reports";
 import FPNReports from "@/pages/FPNReports";
