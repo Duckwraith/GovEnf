@@ -19,7 +19,8 @@ import {
   Shield,
   ChevronDown,
   Smartphone,
-  Monitor
+  Monitor,
+  UserCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
