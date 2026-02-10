@@ -602,6 +602,15 @@ const CaseDetail = () => {
           />
         </TabsContent>
 
+        {/* Persons Tab */}
+        <TabsContent value="persons">
+          <PersonsTab
+            caseData={caseData}
+            canEdit={canEditCase()}
+            onUpdate={() => fetchCaseData()}
+          />
+        </TabsContent>
+
         {/* FPN Tab */}
         {caseData.fpn_issued && (
           <TabsContent value="fpn">
