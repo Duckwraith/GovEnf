@@ -212,7 +212,11 @@ const Persons = () => {
       setPersonToDelete(null);
       fetchPersons();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to delete person');
+      const errorDetail = error.response?.data?.detail;
+      const errorMessage = typeof errorDetail === 'string' 
+        ? errorDetail 
+        : 'Failed to delete person';
+      toast.error(errorMessage);
     }
   };
 
