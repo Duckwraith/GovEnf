@@ -192,7 +192,11 @@ const Persons = () => {
       handleCloseDialog();
       fetchPersons();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to save person');
+      const errorDetail = error.response?.data?.detail;
+      const errorMessage = typeof errorDetail === 'string' 
+        ? errorDetail 
+        : (Array.isArray(errorDetail) ? errorDetail.map(e => e.msg || e).join(', ') : 'Failed to save person');
+      toast.error(errorMessage);
     } finally {
       setSaving(false);
     }
