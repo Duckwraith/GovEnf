@@ -1944,7 +1944,7 @@ async def list_persons(
         if person_type == PersonType.BOTH:
             query["person_type"] = person_type.value
         else:
-            query["$or"] = query.get("$or", [])
+            # Include persons of this type OR persons marked as "both"
             query["person_type"] = {"$in": [person_type.value, PersonType.BOTH.value]}
     
     total = await db.persons.count_documents(query)
