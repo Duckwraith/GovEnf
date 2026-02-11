@@ -102,14 +102,30 @@ Build an app for an enforcement team in a United Kingdom local government author
 
 ## Database Schema
 
+### Person (NEW)
+```
+{
+  id, person_type (reporter/offender/both),
+  title, first_name, last_name, date_of_birth,
+  address: { line1, line2, city, county, postcode },
+  phone, email,
+  id_type, id_number,
+  notes,
+  linked_cases: [case_ids],
+  created_at, updated_at, created_by
+}
+```
+
 ### Case (updated)
 ```
 {
   id, reference_number, case_type, status, description, location,
   assigned_to, owning_team, closure_reason, final_note,
   type_specific_fields,
-  fpn_issued: boolean,        // NEW
-  fpn_details: {              // NEW
+  reporter_id: person_id,       // NEW - link to Person
+  offender_id: person_id,       // NEW - link to Person
+  fpn_issued: boolean,
+  fpn_details: {
     fpn_ref: string,
     date_issued: date,
     fpn_amount: float,
@@ -136,6 +152,7 @@ Build an app for an enforcement team in a United Kingdom local government author
 - ✅ FPN Reports with statistics & outstanding list
 - ✅ Mobile View Toggle (Feb 2026) - Toggle in header and user dropdown, bottom navigation bar in mobile mode
 - ✅ Get Directions Button (Feb 2026) - Opens Google Maps with case coordinates from Location tab
+- ✅ Persons Database (Feb 2026) - Centralized reporter/offender management with role-based visibility
 
 ### P1 (Next)
 - FPN Reporting Enhancements: Aging buckets (0-28 days, 29-56 days, 56+ days)
