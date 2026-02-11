@@ -2002,7 +2002,9 @@ async def create_person(
         "performed_at": datetime.now(timezone.utc).isoformat()
     })
     
-    return filter_person_for_role(doc, current_user["role"])
+    # Fetch the created person without _id
+    created = await db.persons.find_one({"id": person.id}, {"_id": 0})
+    return filter_person_for_role(created, current_user["role"])
 
 @api_router.put("/persons/{person_id}")
 async def update_person(
