@@ -289,14 +289,26 @@ const Persons = () => {
           <h1 className="text-2xl font-bold text-[#0B0C0C]">Persons Database</h1>
           <p className="text-[#505A5F] mt-1">Manage reporters and offenders linked to cases</p>
         </div>
-        <Button
-          onClick={() => handleOpenDialog()}
-          className="bg-[#005EA5] hover:bg-[#004F8C]"
-          data-testid="add-person-btn"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Person
-        </Button>
+        <div className="flex gap-2">
+          {isManager && (
+            <Button
+              variant="outline"
+              onClick={() => setMergeDialogOpen(true)}
+              data-testid="merge-persons-btn"
+            >
+              <UsersIcon className="w-4 h-4 mr-2" />
+              Merge Duplicates
+            </Button>
+          )}
+          <Button
+            onClick={() => handleOpenDialog()}
+            className="bg-[#005EA5] hover:bg-[#004F8C]"
+            data-testid="add-person-btn"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Person
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
