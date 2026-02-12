@@ -583,7 +583,13 @@ const CaseDetail = () => {
               <DuplicateVRMWarning
                 caseId={caseData.id}
                 caseType={caseData.case_type}
-                vrm={typeSpecificFields?.registration_number}
+                vrm={
+                  caseData.case_type === 'abandoned_vehicle' 
+                    ? typeSpecificFields?.abandoned_vehicle?.registration_number
+                    : caseData.case_type?.includes('nuisance_vehicle')
+                      ? typeSpecificFields?.nuisance_vehicle?.registration_number
+                      : typeSpecificFields?.registration_number
+                }
               />
               
               <CaseTypeFields
