@@ -75,25 +75,34 @@ class CaseType(str, Enum):
     COMPLEX_ENVIRONMENTAL = "complex_environmental"
 
 # Case type to team visibility mapping - defines which teams can VIEW each case type
+# Based on UK Council enforcement team structure:
+# - Environmental Crimes: Fly Tipping (general), Abandoned Vehicle, Littering, Dog Fouling, PSPO Dog Control
+# - Enforcement Team: Fly Tipping (private land/organised crime), Nuisance Vehicles, Untidy Land, High Hedges, Waste Carrier Licensing, Complex Environmental
+# - Waste Management: Fly Tipping (general), Littering
 CASE_TYPE_VISIBILITY = {
-    # Waste Management can only see general fly-tipping
-    CaseType.FLY_TIPPING: [TeamType.WASTE_MANAGEMENT, TeamType.ENFORCEMENT, TeamType.ENVIRONMENTAL_CRIMES],
-    # Enforcement handles private land and most case types
-    CaseType.FLY_TIPPING_PRIVATE: [TeamType.ENFORCEMENT, TeamType.ENVIRONMENTAL_CRIMES],
-    CaseType.FLY_TIPPING_ORGANISED: [TeamType.ENFORCEMENT, TeamType.ENVIRONMENTAL_CRIMES],
-    CaseType.ABANDONED_VEHICLE: [TeamType.ENFORCEMENT],
+    # Environmental Crimes + Waste Management can see general fly-tipping
+    CaseType.FLY_TIPPING: [TeamType.ENVIRONMENTAL_CRIMES, TeamType.WASTE_MANAGEMENT],
+    # Enforcement only handles private land and organised crime fly-tipping
+    CaseType.FLY_TIPPING_PRIVATE: [TeamType.ENFORCEMENT],
+    CaseType.FLY_TIPPING_ORGANISED: [TeamType.ENFORCEMENT],
+    # Environmental Crimes handles abandoned vehicles
+    CaseType.ABANDONED_VEHICLE: [TeamType.ENVIRONMENTAL_CRIMES],
+    # Enforcement handles nuisance vehicles
     CaseType.NUISANCE_VEHICLE: [TeamType.ENFORCEMENT],
     CaseType.NUISANCE_VEHICLE_SELLER: [TeamType.ENFORCEMENT],
     CaseType.NUISANCE_VEHICLE_PARKING: [TeamType.ENFORCEMENT],
     CaseType.NUISANCE_VEHICLE_ASB: [TeamType.ENFORCEMENT],
-    CaseType.LITTERING: [TeamType.ENFORCEMENT],
-    CaseType.DOG_FOULING: [TeamType.ENFORCEMENT],
-    CaseType.PSPO_DOG_CONTROL: [TeamType.ENFORCEMENT],
+    # Environmental Crimes + Waste Management handle littering
+    CaseType.LITTERING: [TeamType.ENVIRONMENTAL_CRIMES, TeamType.WASTE_MANAGEMENT],
+    # Environmental Crimes handles dog fouling and PSPO
+    CaseType.DOG_FOULING: [TeamType.ENVIRONMENTAL_CRIMES],
+    CaseType.PSPO_DOG_CONTROL: [TeamType.ENVIRONMENTAL_CRIMES],
+    # Enforcement handles untidy land, high hedges, waste carrier licensing
     CaseType.UNTIDY_LAND: [TeamType.ENFORCEMENT],
     CaseType.HIGH_HEDGES: [TeamType.ENFORCEMENT],
     CaseType.WASTE_CARRIER_LICENSING: [TeamType.ENFORCEMENT],
-    # Environmental crimes has full visibility
-    CaseType.COMPLEX_ENVIRONMENTAL: [TeamType.ENVIRONMENTAL_CRIMES],
+    # Enforcement handles complex environmental offenses
+    CaseType.COMPLEX_ENVIRONMENTAL: [TeamType.ENFORCEMENT],
 }
 
 # For backward compatibility - teams that can be assigned cases
