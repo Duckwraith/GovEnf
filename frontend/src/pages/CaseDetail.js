@@ -58,6 +58,7 @@ import { CaseTypeFields } from '@/components/CaseTypeFields';
 import LocationTab from '@/components/LocationTab';
 import FPNTab from '@/components/FPNTab';
 import PersonsTab from '@/components/PersonsTab';
+import DuplicateVRMWarning from '@/components/DuplicateVRMWarning';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
