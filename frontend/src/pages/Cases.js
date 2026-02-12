@@ -236,10 +236,10 @@ const Cases = () => {
   });
 
   const clearFilters = () => {
-    setFilters({ status: '', case_type: '', search: '' });
+    setFilters({ status: '', case_type: '', search: '', vrm_search: '' });
   };
 
-  const hasActiveFilters = filters.status || filters.case_type || filters.search;
+  const hasActiveFilters = filters.status || filters.case_type || filters.search || filters.vrm_search;
 
   return (
     <div className="space-y-6" data-testid="cases-page">
