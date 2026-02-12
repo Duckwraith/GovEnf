@@ -152,9 +152,14 @@ const Login = () => {
             <div className="mt-6 p-4 bg-[#F3F2F1] rounded-sm">
               <p className="text-xs font-medium text-[#505A5F] mb-2">Demo Accounts:</p>
               <div className="space-y-1 text-xs text-[#0B0C0C] font-mono">
-                <p>Manager: admin@council.gov.uk / admin123</p>
-                <p>Supervisor: supervisor@council.gov.uk / super123</p>
-                <p>Officer: officer@council.gov.uk / officer123</p>
+                <p><strong>Manager:</strong> admin@council.gov.uk / admin123</p>
+                <p><strong>Supervisor:</strong> supervisor@council.gov.uk / super123</p>
+              </div>
+              <p className="text-xs font-medium text-[#505A5F] mt-3 mb-2">Team Officers (filtered visibility):</p>
+              <div className="space-y-1 text-xs text-[#0B0C0C] font-mono">
+                <p>Env Crimes: officer.envcrimes@council.gov.uk / officer123</p>
+                <p>Enforcement: officer.enforcement@council.gov.uk / officer123</p>
+                <p>Waste Mgmt: officer.waste@council.gov.uk / officer123</p>
               </div>
             </div>
           </CardContent>
