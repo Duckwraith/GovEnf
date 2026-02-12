@@ -2627,6 +2627,27 @@ async def get_closed_cases_for_map(
 # Initialize default admin user on startup
 @app.on_event("startup")
 async def startup_event():
+    # Create default teams if none exist
+    team_count = await db.teams.count_documents({})
+    if team_count == 0:
+        default_teams = [
+            {"name": "Environmental Crimes", "team_type": TeamType.ENVIRONMENTAL_CRIMES.value, "description": "Handles fly tipping (general), abandoned vehicles, littering, dog fouling, PSPO dog control"},
+            {"name": "Enforcement Team", "team_type": TeamType.ENFORCEMENT.value, "description": "Handles fly tipping (private/organised), nuisance vehicles, untidy land, high hedges, waste carrier licensing, complex environmental"},
+            {"name": "Waste Management", "team_type": TeamType.WASTE_MANAGEMENT.value, "description": "Handles fly tipping (general), littering"},
+        ]
+        team_ids = {}
+        for team_data in default_teams:
+            team = Team(**team_data)
+            doc = team.model_dump()
+            doc["created_at"] = doc["created_at"].isoformat()
+            await db.teams.insert_one(doc)
+            team_ids[team_data["team_type"]] = team.id
+        logging.info("Default teams created")
+    else:
+        # Get existing team IDs
+        teams = await db.teams.find({}, {"_id": 0}).to_list(100)
+        team_ids = {t["team_type"]: t["id"] for t in teams}
+    
     # Create default admin if no users exist
     user_count = await db.users.count_documents({})
     if user_count == 0:
@@ -2640,19 +2661,23 @@ async def startup_event():
         doc['created_at'] = doc['created_at'].isoformat()
         await db.users.insert_one(doc)
         
-        # Also create demo users
+        # Also create demo users with team assignments
         demo_users = [
-            {"email": "supervisor@council.gov.uk", "name": "Jane Smith", "role": UserRole.SUPERVISOR, "password": "super123"},
-            {"email": "officer@council.gov.uk", "name": "John Officer", "role": UserRole.OFFICER, "password": "officer123"},
+            {"email": "supervisor@council.gov.uk", "name": "Jane Smith", "role": UserRole.SUPERVISOR, "password": "super123", "cross_team_access": True},
+            {"email": "officer.envcrimes@council.gov.uk", "name": "Emily Green", "role": UserRole.OFFICER, "password": "officer123", "teams": [team_ids.get(TeamType.ENVIRONMENTAL_CRIMES.value)]},
+            {"email": "officer.enforcement@council.gov.uk", "name": "Mark Brown", "role": UserRole.OFFICER, "password": "officer123", "teams": [team_ids.get(TeamType.ENFORCEMENT.value)]},
+            {"email": "officer.waste@council.gov.uk", "name": "Sarah White", "role": UserRole.OFFICER, "password": "officer123", "teams": [team_ids.get(TeamType.WASTE_MANAGEMENT.value)]},
+            {"email": "officer@council.gov.uk", "name": "John Officer", "role": UserRole.OFFICER, "password": "officer123"},  # Legacy officer without team
         ]
         for user_data in demo_users:
-            user = User(**{k: v for k, v in user_data.items() if k != "password"})
+            password = user_data.pop("password")
+            user = User(**user_data)
             doc = user.model_dump()
-            doc["password"] = hash_password(user_data["password"])
+            doc["password"] = hash_password(password)
             doc['created_at'] = doc['created_at'].isoformat()
             await db.users.insert_one(doc)
         
-        logging.info("Default users created")
+        logging.info("Default users created with team assignments")
 
 # Include the router
 app.include_router(api_router)
