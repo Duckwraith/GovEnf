@@ -102,12 +102,13 @@ const Layout = () => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['officer', 'supervisor', 'manager'] },
     { path: '/cases', label: 'Cases', icon: FileText, roles: ['officer', 'supervisor', 'manager'] },
-    { path: '/map', label: 'Map View', icon: Map, roles: ['officer', 'supervisor', 'manager'] },
+    { path: '/map', label: 'Live Map', icon: Map, roles: ['officer', 'supervisor', 'manager'] },
     { path: '/persons', label: 'Persons', icon: UserCircle, roles: ['supervisor', 'manager'] },
     { path: '/users', label: 'User Management', icon: Users, roles: ['manager'] },
     { path: '/teams', label: 'Teams', icon: Users2, roles: ['manager'] },
     { path: '/reports', label: 'Reports', icon: BarChart3, roles: ['supervisor', 'manager'] },
     { path: '/fpn-reports', label: 'FPN Reports', icon: Receipt, roles: ['supervisor', 'manager'] },
+    { path: '/closed-cases-map', label: 'Closed Cases Map', icon: Map, roles: ['supervisor', 'manager'] },
     { path: '/settings', label: 'Admin Settings', icon: Settings, roles: ['manager'] },
   ];
 
