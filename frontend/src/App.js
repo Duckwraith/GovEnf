@@ -91,6 +91,11 @@ function App() {
                   <FPNReports />
                 </ProtectedRoute>
               } />
+              <Route path="closed-cases-map" element={
+                <ProtectedRoute allowedRoles={["manager", "supervisor"]}>
+                  <ClosedCasesMap />
+                </ProtectedRoute>
+              } />
             </Route>
           </Routes>
         </BrowserRouter>
