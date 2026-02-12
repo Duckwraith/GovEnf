@@ -1218,6 +1218,11 @@ async def check_duplicate_vrm_route(
     # Normalize VRM - remove spaces and convert to uppercase
     normalized_vrm = vrm.replace(" ", "").upper()
     
+    # Create a regex pattern that matches the VRM with or without spaces
+    # e.g., "XY99ZAB" should match "XY99 ZAB", "XY 99 ZAB", etc.
+    # Insert optional space between each character
+    regex_pattern = "".join([c + r"\s*" for c in normalized_vrm]).rstrip(r"\s*")
+    
     # Determine the nested field path based on case type
     if case_type == "abandoned_vehicle":
         vrm_field = "type_specific_fields.abandoned_vehicle.registration_number"
@@ -1228,7 +1233,7 @@ async def check_duplicate_vrm_route(
     
     query = {
         "case_type": case_type,
-        vrm_field: {"$regex": f"^{normalized_vrm}$", "$options": "i"}
+        vrm_field: {"$regex": f"^{regex_pattern}$", "$options": "i"}
     }
     
     if exclude_case_id:
