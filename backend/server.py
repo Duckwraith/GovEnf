@@ -1143,6 +1143,7 @@ async def get_cases(
     unassigned: Optional[bool] = None,
     team_id: Optional[str] = None,
     exclude_closed: Optional[bool] = None,
+    vrm_search: Optional[str] = None,
     current_user: dict = Depends(get_current_user)
 ):
     query = {}
@@ -1150,6 +1151,16 @@ async def get_cases(
     # Exclude closed cases if requested (for live map)
     if exclude_closed:
         query["status"] = {"$ne": CaseStatus.CLOSED.value}
+    
+    # VRM search across all vehicle case types
+    if vrm_search:
+        normalized_vrm = vrm_search.replace(" ", "").upper()
+        regex_pattern = "".join([c + r"\s*" for c in normalized_vrm]).rstrip(r"\s*")
+        query["$or"] = [
+            {"type_specific_fields.abandoned_vehicle.registration_number": {"$regex": regex_pattern, "$options": "i"}},
+            {"type_specific_fields.nuisance_vehicle.registration_number": {"$regex": regex_pattern, "$options": "i"}},
+            {"type_specific_fields.registration_number": {"$regex": regex_pattern, "$options": "i"}}
+        ]
     
     # Team-based filtering
     user_teams = current_user.get("teams", [])
