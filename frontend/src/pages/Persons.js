@@ -121,6 +121,10 @@ const Persons = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [personCases, setPersonCases] = useState([]);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [mergeDialogOpen, setMergeDialogOpen] = useState(false);
+  const [mergePrimary, setMergePrimary] = useState(null);
+  const [mergeSecondary, setMergeSecondary] = useState(null);
+  const [merging, setMerging] = useState(false);
 
   const isManager = user?.role === 'manager';
 
