@@ -1510,7 +1510,7 @@ async def update_case(case_id: str, updates: CaseUpdate, current_user: dict = De
     
     # Handle description update
     if updates.description and updates.description != case.get("description"):
-        audit_details.append(f"Description updated")
+        audit_details.append("Description updated")
     
     # Handle status changes
     if updates.status:
@@ -2349,7 +2349,7 @@ async def unlink_person_from_case(
         "performed_at": datetime.now(timezone.utc).isoformat()
     })
     
-    return {"message": f"Person unlinked from case"}
+    return {"message": "Person unlinked from case"}
 
 @api_router.get("/cases/{case_id}/persons")
 async def get_case_persons(
