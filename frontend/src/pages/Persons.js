@@ -839,6 +839,136 @@ const Persons = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Merge Persons Dialog */}
+      <Dialog open={mergeDialogOpen} onOpenChange={setMergeDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UsersIcon className="w-5 h-5" />
+              Merge Duplicate Persons
+            </DialogTitle>
+            <DialogDescription>
+              Select two persons to merge. The most recent data will be kept, and all linked cases will be transferred to the primary record.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {/* Primary Person */}
+            <div className="space-y-2">
+              <Label>Primary Person (will be kept)</Label>
+              <Select
+                value={mergePrimary?.id || ''}
+                onValueChange={(id) => setMergePrimary(persons.find(p => p.id === id))}
+              >
+                <SelectTrigger data-testid="merge-primary-select">
+                  <SelectValue placeholder="Select primary person" />
+                </SelectTrigger>
+                <SelectContent>
+                  {persons.filter(p => p.id !== mergeSecondary?.id).map(person => (
+                    <SelectItem key={person.id} value={person.id}>
+                      {person.title && `${person.title} `}{person.first_name} {person.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {mergePrimary && (
+                <Card className="bg-green-50 border-green-200">
+                  <CardContent className="p-3">
+                    <p className="font-medium text-green-800">
+                      {mergePrimary.title && `${mergePrimary.title} `}
+                      {mergePrimary.first_name} {mergePrimary.last_name}
+                    </p>
+                    <p className="text-sm text-green-600">{mergePrimary.phone || mergePrimary.email || 'No contact'}</p>
+                    <Badge className={getTypeBadgeColor(mergePrimary.person_type)} >
+                      {mergePrimary.person_type}
+                    </Badge>
+                    <p className="text-xs text-green-600 mt-1">
+                      {mergePrimary.linked_cases?.length || 0} linked case(s)
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Secondary Person */}
+            <div className="space-y-2">
+              <Label>Secondary Person (will be merged & deleted)</Label>
+              <Select
+                value={mergeSecondary?.id || ''}
+                onValueChange={(id) => setMergeSecondary(persons.find(p => p.id === id))}
+              >
+                <SelectTrigger data-testid="merge-secondary-select">
+                  <SelectValue placeholder="Select secondary person" />
+                </SelectTrigger>
+                <SelectContent>
+                  {persons.filter(p => p.id !== mergePrimary?.id).map(person => (
+                    <SelectItem key={person.id} value={person.id}>
+                      {person.title && `${person.title} `}{person.first_name} {person.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {mergeSecondary && (
+                <Card className="bg-red-50 border-red-200">
+                  <CardContent className="p-3">
+                    <p className="font-medium text-red-800">
+                      {mergeSecondary.title && `${mergeSecondary.title} `}
+                      {mergeSecondary.first_name} {mergeSecondary.last_name}
+                    </p>
+                    <p className="text-sm text-red-600">{mergeSecondary.phone || mergeSecondary.email || 'No contact'}</p>
+                    <Badge className={getTypeBadgeColor(mergeSecondary.person_type)}>
+                      {mergeSecondary.person_type}
+                    </Badge>
+                    <p className="text-xs text-red-600 mt-1">
+                      {mergeSecondary.linked_cases?.length || 0} linked case(s) will be transferred
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          {mergePrimary && mergeSecondary && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+              <p className="text-sm text-amber-800">
+                <AlertTriangle className="w-4 h-4 inline mr-1" />
+                This will merge <strong>{mergeSecondary.first_name} {mergeSecondary.last_name}</strong> into{' '}
+                <strong>{mergePrimary.first_name} {mergePrimary.last_name}</strong>.
+                The secondary person record will be deleted and all their linked cases will be transferred.
+              </p>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setMergeDialogOpen(false);
+                setMergePrimary(null);
+                setMergeSecondary(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleMerge}
+              className="bg-[#005EA5] hover:bg-[#004F8C]"
+              disabled={!mergePrimary || !mergeSecondary || merging}
+              data-testid="confirm-merge-btn"
+            >
+              {merging ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Merging...
+                </>
+              ) : (
+                'Merge Persons'
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
