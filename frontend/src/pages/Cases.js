@@ -88,12 +88,48 @@ const Cases = () => {
     fetchCases();
   }, [fetchCases]);
 
-  const handleCreateCase = async (e) => {
-    e.preventDefault();
+  // Check for duplicate VRM before creating case
+  const checkDuplicateVRM = async () => {
+    const caseType = newCase.case_type;
+    const typeFields = newCase.type_specific_fields;
+    
+    // Get VRM based on case type
+    let vrm = null;
+    if (caseType === 'abandoned_vehicle' && typeFields?.abandoned_vehicle) {
+      vrm = typeFields.abandoned_vehicle.registration_number;
+    } else if (caseType?.includes('nuisance_vehicle') && typeFields?.nuisance_vehicle) {
+      vrm = typeFields.nuisance_vehicle.registration_number;
+    }
+    
+    if (!vrm) return null;
+    
+    try {
+      const response = await axios.get(`${API}/cases/check-duplicate-vrm?vrm=${encodeURIComponent(vrm)}&case_type=${caseType}`);
+      if (response.data.count > 0) {
+        return response.data;
+      }
+    } catch (error) {
+      console.error('Error checking duplicate VRM:', error);
+    }
+    return null;
+  };
+
+  const handleCreateCase = async (e, skipDuplicateCheck = false) => {
+    e?.preventDefault();
     
     if (!newCase.case_type || !newCase.description) {
       toast.error('Please fill in all required fields');
       return;
+    }
+
+    // Check for duplicate VRM if not skipping
+    if (!skipDuplicateCheck) {
+      const duplicates = await checkDuplicateVRM();
+      if (duplicates && duplicates.count > 0) {
+        setDuplicateWarning(duplicates);
+        setShowDuplicateDialog(true);
+        return;
+      }
     }
 
     setCreating(true);
@@ -107,6 +143,8 @@ const Cases = () => {
       const response = await axios.post(`${API}/cases`, payload);
       toast.success(`Case ${response.data.reference_number} created successfully`);
       setShowCreateDialog(false);
+      setShowDuplicateDialog(false);
+      setDuplicateWarning(null);
       setNewCase({
         case_type: '',
         description: '',
