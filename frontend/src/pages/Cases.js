@@ -395,6 +395,17 @@ const Cases = () => {
                 data-testid="search-input"
               />
             </div>
+            <div className="relative">
+              <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#505A5F]" />
+              <Input
+                placeholder="Search by VRM..."
+                value={filters.vrm_search}
+                onChange={(e) => setFilters({ ...filters, vrm_search: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && fetchCases()}
+                className="pl-9 w-full sm:w-[160px]"
+                data-testid="vrm-search-input"
+              />
+            </div>
             <Select
               value={filters.status}
               onValueChange={(value) => setFilters({ ...filters, status: value })}
