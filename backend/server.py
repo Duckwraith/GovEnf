@@ -1187,20 +1187,12 @@ async def get_cases(
         if unassigned:
             query["assigned_to"] = None
         else:
-            # Combine team filter with assignment filter
-            assignment_conditions = [
+            # Combine with assignment filter
+            assignment_filter = {"$or": [
                 {"assigned_to": current_user["id"]},
                 {"assigned_to": None}
-            ]
-            if team_filter:
-                # Must match both team AND assignment
-                query["$and"] = [
-                    {"$or": team_filter},
-                    {"$or": assignment_conditions}
-                ]
-                del query["$or"]
-            else:
-                query["$or"] = assignment_conditions
+            ]}
+            and_conditions.append(assignment_filter)
     
     if status:
         query["status"] = status.value
@@ -1212,6 +1204,13 @@ async def get_cases(
         query["assigned_to"] = None
     if team_id:
         query["owning_team"] = team_id
+    
+    # Combine all $and conditions if any
+    if and_conditions:
+        if len(and_conditions) == 1:
+            query.update(and_conditions[0])
+        else:
+            query["$and"] = and_conditions
     
     cases = await db.cases.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return cases
